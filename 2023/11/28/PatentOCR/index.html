@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://example.com/images/image-20231205152805704.png">
 <meta property="og:image" content="http://example.com/images/image-20231205152713836.png">
 <meta property="article:published_time" content="2023-11-28T03:06:14.000Z">
-<meta property="article:modified_time" content="2023-12-06T03:33:35.510Z">
+<meta property="article:modified_time" content="2023-12-06T06:48:57.640Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/image-20231123135349443.png">
@@ -104,6 +104,8 @@
 <p><img src="/images/image-20231123135349443.png" alt="image-20231123135349443"></p>
 <p>直接对上面PDF格式文件进行识别的具体效果：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
 
 <p>双列文档识别成了单列，但是既然贴心地标上了<code>[[130.0, 662.0], [241.0, 662.0], [241.0, 678.0], [130.0, 678.0]]</code>坐标那就很贴心了，直接根据坐标split就行了，下面是通过正则过滤掉无用信息并转为一个数组的方法。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">    line = line[line.index(&quot;[[[&quot;):]  </span><br><span class="line">    # 使用正则表达式匹配每一行中的矩形坐标</span><br><span class="line">    matches = re.findall(r&#x27;(\d+\.\d+)&#x27;, line)  </span><br><span class="line">    # 变成一个数组，分别是四个角的x轴和y轴顺时针排列</span><br><span class="line">    left_x = float(matches[0])  # 获取左上角的X坐标</span><br><span class="line">    right_x = float(matches[2])  # 获取右上角的X坐标</span><br><span class="line">    up_y = float(matches[1])</span><br><span class="line">except ValueError:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>

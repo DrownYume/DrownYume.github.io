@@ -109,74 +109,11 @@
 <p>查看能否顺利打开 <code>localhost:4000/</code></p>
 <p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206123713756.png" alt="image-20231206123713756"></p>
 <p>本地的配置完成了。</p>
-<h2 id="Github配置"><a href="#Github配置" class="headerlink" title="Github配置"></a>Github配置</h2><p>配置 SSH 密钥：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C &quot;your email@example.com&quot;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206124303966.png" alt="image-20231206124303966"></p>
-<p>提示一下，空的直接回车也是可以的。操作完后屏幕会出现</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">The key fingerprint is:</span><br><span class="line">..................</span><br><span class="line">The key&#x27;s randomart image is:</span><br><span class="line">..................</span><br></pre></td></tr></table></figure>
-
-<p>输入以下命令保存</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clip &lt; ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
-
-<p>进入github，点击右上角头像-&gt;settings-&gt;SSH and GPG keys-&gt;New SSH key</p>
-<p><code>title</code>随意</p>
-<p><code>key</code>部分直接粘贴</p>
-<p>在git中输入以下代码进行测试</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br></pre></td></tr></table></figure>
-
-<p>配置个人信息</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git config --global user.name &quot;此处填你的用户名&quot;</span><br><span class="line">$ git config --global user.email &quot;此处填你的邮箱&quot;</span><br></pre></td></tr></table></figure>
-
-<h2 id="建立Github-Pages主页"><a href="#建立Github-Pages主页" class="headerlink" title="建立Github Pages主页"></a>建立Github Pages主页</h2><p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206125457040.png" alt="image-20231206125457040"></p>
-<p>必须是 <code>用户名.github.io</code> 格式</p>
-<p>必须是 <code>用户名.github.io</code> 格式</p>
-<p>必须是 <code>用户名.github.io</code> 格式</p>
-<p>空白的项目如下所示</p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206125635631.png" alt="image-20231206125635631"></p>
-<p>复制SSH地址，地址格式  <code>git@github.com:用户名/项目名.git</code></p>
-<p>打开<code>Hexo</code>文件夹下的<code>_config.yml</code>,记事本等都可以，拉到最下面的deploy部分，初始只有一个type: ‘’</p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206125843042.png" alt="image-20231206125843042"></p>
-<p>修改后如下</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repository: git@github.com:DrownYume/DrownYume.github.io.git</span><br><span class="line">  branch: main</span><br></pre></td></tr></table></figure>
-
-<p>这里的<code>branch</code>是main而不是master，具体原因很搞笑，但是我不能笑……哈哈哈哈哈哈哈</p>
-<p>保存后执行</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-
-<p>执行完之后会让你输入你的 Github 的账号和密码，如果此时报以下错误，说明你的 deployer 没有安装成功</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR Deployer not found: git</span><br></pre></td></tr></table></figure>
-
-<p>需要执行以下命令再安装一次：</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-
-<p>再执行 <code>hexo g -d</code></p>
-<p>此时打开<code>DrownYume.github.io.git</code>项目，点击标签中的<code>Actions</code>会发现项目正在部署，部署完成后在地址栏输入<a target="_blank" rel="noopener" href="https://drownyume.github.io/%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E8%AE%BF%E9%97%AE%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%BB%E9%A1%B5%E4%BA%86">https://drownyume.github.io/，就可以访问到自己的主页了</a></p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206130411778.png" alt="image-20231206130411778"></p>
-<h2 id="图片插入"><a href="#图片插入" class="headerlink" title="图片插入"></a>图片插入</h2><p>我写这篇记录的目的主要是一开始图片显示不出来，阴差阳错不知道怎么回事把图片显示出来了，然后又显示不出来了，就挺扯的，所以打算复现一下问题并且重新操作。</p>
-<p>首先把<code>_config.yml</code>中的<code>post_asset_folder</code>设为<code>true</code></p>
-<p>下面的安装代码已经划掉了，请不要复制</p>
-<p><del>npm install hexo-asset-image</del></p>
-<p><del>安装<code>hexo-asset-image</code>的依赖</del></p>
-<p>理论上这样就完事儿了，那么 <code>hexo g -d</code>测试一下</p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206130647674.png" alt="image-20231206130647674"></p>
-<p>讲个笑话，写攻略的按照攻略没打通哈哈哈</p>
-<p>总结一下问题，首先打开本地文件</p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206130819932.png" alt="image-20231206130819932"></p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206130838624.png" alt="image-20231206130838624"></p>
-<p>图片都是在的</p>
-<p>打开github</p>
-<p><img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206130918133.png" alt="image-20231206130918133"></p>
-<p>图片同样是在的</p>
-<p>最后打开这里的<code>index.html</code>发现问题所在<img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206131057826.png" alt="image-20231206131057826"></p>
-<p>这是个啥玩意儿？图片地址全都是错的。</p>
-<p>对比一下我上一个能成功显示图片的md，我把文件放在了上一个文件夹的image文件里<img src="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/image-20231206131352436.png" alt="image-20231206131352436"></p>
-<p>一对比就知道问题出在了哪里，hexo没有成功在index中写入markdown存放图片的位置</p>
-<p>到了这一步基本上确定就是本身接口的问题了，网上有很多重写了<code>hexo-asset-image</code>这个接口的，但是我试下来只有下面这个是好的</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install https://github.com/CodeFalling/hexo-asset-image --save</span><br></pre></td></tr></table></figure>
-
-<p>具体各位能不能用我不确定，我这边说一下我的配置，如果跟我差不多的应该就可以，markdown的保存位置是<code>D:\Mygit\Myblogs\Hexo\source\_posts</code>,markdown图片的保存位置：<code>./$&#123;filename&#125;</code>，也就是与.md同位置的同名（没有后缀名）文件夹，上面我也贴过图这里就不重复了。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -260,30 +197,11 @@
 <p><img src="/images/image-20231123135349443.png" alt="image-20231123135349443"></p>
 <p>直接对上面PDF格式文件进行识别的具体效果：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
-
-<p>双列文档识别成了单列，但是既然贴心地标上了<code>[[130.0, 662.0], [241.0, 662.0], [241.0, 678.0], [130.0, 678.0]]</code>坐标那就很贴心了，直接根据坐标split就行了，下面是通过正则过滤掉无用信息并转为一个数组的方法。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">    line = line[line.index(&quot;[[[&quot;):]  </span><br><span class="line">    # 使用正则表达式匹配每一行中的矩形坐标</span><br><span class="line">    matches = re.findall(r&#x27;(\d+\.\d+)&#x27;, line)  </span><br><span class="line">    # 变成一个数组，分别是四个角的x轴和y轴顺时针排列</span><br><span class="line">    left_x = float(matches[0])  # 获取左上角的X坐标</span><br><span class="line">    right_x = float(matches[2])  # 获取右上角的X坐标</span><br><span class="line">    up_y = float(matches[1])</span><br><span class="line">except ValueError:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
-
-<p>按照PDF的每一页对左边右边分别添加，首先将每一页转为图片</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paddleocr --image_dir &quot;pdf.pdf&quot; --type=structure --table=false --ocr=false</span><br></pre></td></tr></table></figure>
-
-<p>一口气完成：读取图片-&gt;识别文字-&gt;拼接字符串-&gt;输出文档-&gt;<del>然后被开除</del></p>
-<p><img src="/images/image-20231205152805704.png" alt="image-20231205152805704"></p>
-<p>因为单纯OCR输出一个字符串没有任何实际意义（<del>丢给GPT就行</del>），只有转化为json等格式才能让前端能够进一步使用，展示成果给客户，python要转为key-value格式最常见的方式是使用字典进行操作。</p>
-<h2 id="使用json格式进行输出"><a href="#使用json格式进行输出" class="headerlink" title="使用json格式进行输出"></a>使用json格式进行输出</h2><p>转为键值对一个主要问题是如何识别标题，可以结合KEYWORDS结合坐标系的方式，将标题又可以分为1级标题，2级标题，3级标题，识别为标题或副标题，则创建一个新的字典</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">current_sub_key = <span class="built_in">list</span>(data[current_key].keys())[-<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
-
-<p>若为内容则输入进最后一个(子)字典中</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data[current_key].update(&#123;current_sub_key: data[current_key][current_sub_key] + line&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>当然，这里很多判断条件以及异常处理就不多赘述了。</p>
-<p>最终效果如下</p>
-<p><img src="/images/image-20231205152713836.png" alt="image-20231205152713836"></p>
-<h2 id="一些小改进"><a href="#一些小改进" class="headerlink" title="一些小改进"></a>一些小改进</h2><p>如何避免被人发现代码写得难看，使用<code>parse</code>强制只能用命令行运行：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">parser = argparse.ArgumentParser(description=&#x27;test&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfName&#x27;, default=&quot;xxx.pdf&quot;, help=&#x27;Please Enter PDF Name&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfDir&#x27;, default=&quot;C://xxx/xxx/xxx/&quot;, help=&#x27;Please Enter PDF Directory(DO NOT contain PDF Name)&#x27;)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">filedir = args.pdfDir  # 输入文件路径</span><br><span class="line">filename = args.pdfName  # 输入文件名</span><br></pre></td></tr></table></figure>
-
-<p>分开设置名称以及目录后可以设置<code>--pdfName</code>为空时，批量处理当前文件夹下所有文件。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2023/11/28/PatentOCR/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
