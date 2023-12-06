@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="应用OCR模型对特定文档识别OCR是个很成熟的技术，特别是随着深度学习的发展，目前对文字区域的识别能力以及识别可信度都很高，但是对于具体场景的应用，各类OCR现在做的并不好。（没有吐槽WPS的意思） PaddleOCR的快速使用1https:&#x2F;&#x2F;github.com&#x2F;PaddlePaddle&#x2F;PaddleOCR&#x2F;blob&#x2F;release&#x2F;2.6&#x2F;doc&#x2F;doc_ch&#x2F;quickstart.md">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/PatentOCR.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="应用OCR模型对特定文档识别OCR是个很成熟的技术，特别是随着深度学习的发展，目前对文字区域的识别能力以及识别可信度都很高，但是对于具体场景的应用，各类OCR现在做的并不好。（没有吐槽WPS的意思） PaddleOCR的快速使用1https:&#x2F;&#x2F;github.com&#x2F;PaddlePaddle&#x2F;PaddleOCR&#x2F;blob&#x2F;release&#x2F;2.6&#x2F;doc&#x2F;doc_ch&#x2F;quickstart.md">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/PatentOCR/image-20231123135349443.png">
+<meta property="og:image" content="http://example.com/PatentOCR/image-20231205152805704.png">
+<meta property="og:image" content="http://example.com/PatentOCR/image-20231205152713836.png">
+<meta property="article:published_time" content="2023-12-06T02:53:47.232Z">
+<meta property="article:modified_time" content="2023-12-06T02:53:47.232Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/PatentOCR/image-20231123135349443.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="page-" class="h-entry article article-type-page" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/PatentOCR.html" class="article-date">
+  <time class="dt-published" datetime="2023-12-06T02:53:47.232Z" itemprop="datePublished">2023-12-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <hr>
+<h2 id="应用OCR模型对特定文档识别"><a href="#应用OCR模型对特定文档识别" class="headerlink" title="应用OCR模型对特定文档识别"></a>应用OCR模型对特定文档识别</h2><p>OCR是个很成熟的技术，特别是随着深度学习的发展，目前对文字区域的识别能力以及识别可信度都很高，但是对于具体场景的应用，各类OCR现在做的并不好。（没有吐槽WPS的意思）</p>
+<h2 id="PaddleOCR的快速使用"><a href="#PaddleOCR的快速使用" class="headerlink" title="PaddleOCR的快速使用"></a>PaddleOCR的快速使用</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</span><br></pre></td></tr></table></figure>
+
+<p>直接对PDF格式文件进行识别的具体效果：</p>
+<p><img src="/PatentOCR/image-20231123135349443.png" alt="image-20231123135349443"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
+
+<p>双列文档识别成了单列，但是既然贴心地标上了<code>[[130.0, 662.0], [241.0, 662.0], [241.0, 678.0], [130.0, 678.0]]</code>坐标那就很贴心了，直接根据坐标split</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">try:</span><br><span class="line">    line = line[line.index(&quot;[[[&quot;):]  </span><br><span class="line">    # 使用正则表达式匹配每一行中的矩形坐标</span><br><span class="line">    matches = re.findall(r&#x27;(\d+\.\d+)&#x27;, line)  </span><br><span class="line">    # 变成一个数组，分别是四个角的x轴和y轴顺时针排列</span><br><span class="line">    left_x = float(matches[0])  # 获取左上角的X坐标</span><br><span class="line">    right_x = float(matches[2])  # 获取右上角的X坐标</span><br><span class="line">    up_y = float(matches[1])</span><br><span class="line">except ValueError:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
+
+<p>按照PDF的每一页对左边右边分别添加，首先将每一页转为图片</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paddleocr --image_dir &quot;pdf.pdf&quot; --type=structure --table=false --ocr=false</span><br></pre></td></tr></table></figure>
+
+<p>然后一口气完成：读取图片-&gt;识别文字-&gt;拼接字符串-&gt;输出文档-&gt;<del>然后被开除</del></p>
+<p><img src="/PatentOCR/image-20231205152805704.png" alt="image-20231205152805704"></p>
+<p>因为单纯OCR输出一个字符串从应用价值方面来看没有任何实际意义（<del>丢给GPT就行</del>），所以转化为key-value格式，python要转为key-value格式最常见的方式是使用字典进行操作</p>
+<h2 id="使用json格式进行输出"><a href="#使用json格式进行输出" class="headerlink" title="使用json格式进行输出"></a>使用json格式进行输出</h2><p>如何识别标题，可以结合KEYWORDS结合坐标系的方式，将标题又可以分为1级标题，2级标题，3级标题，识别为标题或副标题，则创建一个新的字典</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">current_sub_key = <span class="built_in">list</span>(data[current_key].keys())[-<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+
+<p>若为内容则输入进最后一个(子)字典中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data[current_key].update(&#123;current_sub_key: data[current_key][current_sub_key] + line&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>当然，这里很多判断条件以及异常处理就不多赘述了。</p>
+<p>最终效果如下</p>
+<p><img src="/PatentOCR/image-20231205152713836.png" alt="image-20231205152713836"></p>
+<h2 id="一些小改进"><a href="#一些小改进" class="headerlink" title="一些小改进"></a>一些小改进</h2><p>如何避免被人发现代码写得难看，使用<code>parse</code>强制命令行运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">parser = argparse.ArgumentParser(description=&#x27;test&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfName&#x27;, default=&quot;xxx.pdf&quot;, help=&#x27;Please Enter PDF Name&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfDir&#x27;, default=&quot;C://xxx/xxx/xxx/&quot;, help=&#x27;Please Enter PDF Directory(DO NOT contain PDF Name)&#x27;)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">filedir = args.pdfDir  # 输入文件路径</span><br><span class="line">filename = args.pdfName  # 输入文件名</span><br></pre></td></tr></table></figure>
+
+<p>分开设置名称以及目录后可以设置<code>--pdfName</code>为空时，批量处理当前文件夹下所有文件。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/PatentOCR.html" data-id="clpt6dulk000050wsasqp3dio" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/12/06/PatentOCR/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2023/12/06/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
