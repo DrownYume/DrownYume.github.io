@@ -95,7 +95,7 @@
 <h2 id="PaddleOCR的快速使用"><a href="#PaddleOCR的快速使用" class="headerlink" title="PaddleOCR的快速使用"></a>PaddleOCR的快速使用</h2><p>PaddleOCR的使用在这里已经写的很详细就不多做赘述了：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.com//image-20231123135349443.png" alt="image-20231123135349443"></p>
+<p><img src="/images/image-20231123135349443.png" alt="image-20231123135349443"></p>
 <p>直接对上面PDF格式文件进行识别的具体效果：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
 
@@ -106,7 +106,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paddleocr --image_dir &quot;pdf.pdf&quot; --type=structure --table=false --ocr=false</span><br></pre></td></tr></table></figure>
 
 <p>一口气完成：读取图片-&gt;识别文字-&gt;拼接字符串-&gt;输出文档-&gt;<del>然后被开除</del></p>
-<p><img src="/.com//image-20231205152805704.png" alt="image-20231205152805704"></p>
+<p><img src="/images/image-20231205152805704.png" alt="image-20231205152805704"></p>
 <p>因为单纯OCR输出一个字符串没有任何实际意义（<del>丢给GPT就行</del>），只有转化为json等格式才能让前端能够进一步使用，展示成果给客户，python要转为key-value格式最常见的方式是使用字典进行操作。</p>
 <h2 id="使用json格式进行输出"><a href="#使用json格式进行输出" class="headerlink" title="使用json格式进行输出"></a>使用json格式进行输出</h2><p>转为键值对一个主要问题是如何识别标题，可以结合KEYWORDS结合坐标系的方式，将标题又可以分为1级标题，2级标题，3级标题，识别为标题或副标题，则创建一个新的字典</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">current_sub_key = <span class="built_in">list</span>(data[current_key].keys())[-<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
@@ -116,7 +116,7 @@
 
 <p>当然，这里很多判断条件以及异常处理就不多赘述了。</p>
 <p>最终效果如下</p>
-<p><img src="/.com//image-20231205152713836.png" alt="image-20231205152713836"></p>
+<p><img src="/images/image-20231205152713836.png" alt="image-20231205152713836"></p>
 <h2 id="一些小改进"><a href="#一些小改进" class="headerlink" title="一些小改进"></a>一些小改进</h2><p>如何避免被人发现代码写得难看，使用<code>parse</code>强制只能用命令行运行：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">parser = argparse.ArgumentParser(description=&#x27;test&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfName&#x27;, default=&quot;xxx.pdf&quot;, help=&#x27;Please Enter PDF Name&#x27;)</span><br><span class="line">parser.add_argument(&#x27;--pdfDir&#x27;, default=&quot;C://xxx/xxx/xxx/&quot;, help=&#x27;Please Enter PDF Directory(DO NOT contain PDF Name)&#x27;)</span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line">filedir = args.pdfDir  # 输入文件路径</span><br><span class="line">filename = args.pdfName  # 输入文件名</span><br></pre></td></tr></table></figure>
 
