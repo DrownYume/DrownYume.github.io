@@ -6,15 +6,15 @@
   
   <title>Lambda在Mybatis-plus中的使用 | HuangZhen&#39;s Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统 123456789101112&#x2F;&#x2F; 创建userLambdaQueryWrapperLamb">
+  <meta name="description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Lambda在Mybatis-plus中的使用">
 <meta property="og:url" content="http://example.com/2024/02/04/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="HuangZhen&#39;s Home">
-<meta property="og:description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统 123456789101112&#x2F;&#x2F; 创建userLambdaQueryWrapperLamb">
+<meta property="og:description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-04T03:47:29.000Z">
-<meta property="article:modified_time" content="2024-02-24T09:18:11.535Z">
+<meta property="article:modified_time" content="2024-02-24T09:40:01.607Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
   
@@ -96,6 +96,8 @@
         <h1 id="Lambda在Mybatis-plus中的使用"><a href="#Lambda在Mybatis-plus中的使用" class="headerlink" title="Lambda在Mybatis-plus中的使用"></a>Lambda在Mybatis-plus中的使用</h1><p>Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。</p>
 <h3 id="LambdaQueryWrapper"><a href="#LambdaQueryWrapper" class="headerlink" title="LambdaQueryWrapper"></a>LambdaQueryWrapper</h3><p>1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list</p>
 <p>由于是工作中的代码，假装我在做经典的学生管理系统</p>
+<span id="more"></span>
+
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 创建userLambdaQueryWrapper</span><br><span class="line">LambdaQueryWrapper&lt;User&gt; userLambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();</span><br><span class="line">// 通过wrapper中的eq方法对request与entity的Id字段进行匹配，获得相关的数据库词条</span><br><span class="line">// 这里的User是一个由Mybatis-plus生成的与数据库表字段一一对应的一个entity</span><br><span class="line">userLambdaQueryWrapper.eq(User::getId, request.getId());</span><br><span class="line">// 这里的orderBy是由AbstractWrapper提供的排序方法，这里的作用是根据createtime排序</span><br><span class="line">// orderBy(boolean condition, boolean isAsc, R column)</span><br><span class="line">UserLambdaQueryWrapper.orderBy(true, false, User::getCreateTime);</span><br><span class="line">// page东西多下面单独开一栏</span><br><span class="line">Page&lt;User&gt; page = new Page&lt;&gt;(getUserListRequest.getPageVO().getCurrent(),getUserListRequest.getPageVO().getSize());</span><br><span class="line">// 使用分页对象和查询条件调用服务方法进行分页查询</span><br><span class="line">Page&lt;User&gt; userPage = userService.page(page, userLambdaQueryWrapper);</span><br></pre></td></tr></table></figure>
 
 <p>Page是由Mybatis-plus提供的一个分页的类，构造器最多四个参数，有5种重载方法我的代码中采用了2参的构造方法，也就是Page(long current, long size)&#96;,分别设定当前页以及每页的大小</p>
