@@ -69,60 +69,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-ES6" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2024/02/24/ES6/" class="article-date">
-  <time class="dt-published" datetime="2024-02-24T08:48:39.701Z" itemprop="datePublished">2024-02-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="ECMAScript-6基础"><a href="#ECMAScript-6基础" class="headerlink" title="ECMAScript 6基础"></a><strong>ECMAScript 6</strong>基础</h1><p>这是一个后端在前后端不分离的道路上越走越远的事故</p>
-<p>就写点基础，深入的东西直接到时候写项目的时候补上</p>
-<h2 id="let关键字"><a href="#let关键字" class="headerlink" title="let关键字"></a>let关键字</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//声明变量</span><br><span class="line">let a;</span><br><span class="line">let b,c,d;</span><br><span class="line">let e = 100;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//块级作用域</span><br><span class="line">&#123;</span><br><span class="line">	let girl = &#x27;周扬青&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">	console.log(girl);</span><br><span class="line">//报错</span><br><span class="line">&#123;</span><br><span class="line">	var girl = &#x27;周扬青&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">	console.log(girl);</span><br><span class="line">//不报错</span><br></pre></td></tr></table></figure>
-
-<p>不允许在变量声明之前使用变量</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">console.log(song);</span><br><span class="line">let song = &#x27;恋爱达人&#x27;;</span><br><span class="line">// 报错</span><br></pre></td></tr></table></figure>
-
-<h2 id="一个简单的let点击变色实例"><a href="#一个简单的let点击变色实例" class="headerlink" title="一个简单的let点击变色实例"></a>一个简单的let点击变色实例</h2><p><img src="/2024/02/24/ES6/image-20240129142411848.png" alt="image-20240129142411848"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    // 优化移动设备上的视口设置</span><br><span class="line">    &lt;title&gt;点击 DIV 换色&lt;/title&gt;</span><br><span class="line">    &lt;link crossorigin=&quot;anonymous&quot; href=&quot;https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css&quot;</span><br><span class="line">        rel=&quot;stylesheet&quot;&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">        .item &#123;</span><br><span class="line">            width: 100px;</span><br><span class="line">            height: 50px;</span><br><span class="line">            border: solid 1px rgb(42, 156, 156);</span><br><span class="line">            float: left;</span><br><span class="line">            margin-right: 10px;</span><br><span class="line">        &#125;</span><br><span class="line">        //定义了.item类的CSS样式，包括宽度、高度、边框和浮动属性</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;div class=&quot;container&quot;&gt;</span><br><span class="line">        &lt;h2 class=&quot;page-header&quot;&gt;点击切换颜色&lt;/h2&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        //三个类为 &quot;item&quot; 的空 div，它们将根据样式展示为小方块。</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">        //获取div元素对象</span><br><span class="line">        let items = document.getElementsByClassName(&#x27;item&#x27;);</span><br><span class="line">        //遍历并绑定事件</span><br><span class="line">        for(let i = 0;i&lt;items.length;i++)&#123;</span><br><span class="line">        //使用 for 循环遍历这些元素，给每个元素绑定 onclick 事件。</span><br><span class="line">            items[i].onclick = function()&#123;</span><br><span class="line">                //修改当前元素的背景颜色</span><br><span class="line">                // this.style.background = &#x27;pink&#x27;;</span><br><span class="line">                items[i].style.background = &#x27;pink&#x27;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;        </span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="const常量"><a href="#const常量" class="headerlink" title="const常量"></a>const常量</h2><p>const必须有初始值，一般使用大写，值不允许修改。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">对于数组和对象的元素修改, 不算做对常量的修改, 不会报错</span><br><span class="line">const TEAM = [&#x27;UZI&#x27;,&#x27;MXLG&#x27;,&#x27;Ming&#x27;,&#x27;Letme&#x27;];</span><br><span class="line">TEAM.push(&#x27;Meiko&#x27;);</span><br><span class="line">声明数组的时候一般使用const</span><br></pre></td></tr></table></figure>
-
-<h2 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h2><p>语法上 Promise 是一个构造函数，用来封装异步操作并可以获取其成功或失败的结果。</p>
-<ol>
-<li><p>Promise 构造函数: Promise (excutor) {}</p>
-</li>
-<li><p>Promise.prototype.then 方法</p>
-</li>
-<li><p>Promise.prototype.catch 方法</p>
-</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">        //实例化 Promise 对象</span><br><span class="line">        const p = new Promise(function(resolve, reject)&#123;</span><br><span class="line">            setTimeout(function()&#123;</span><br><span class="line">				// 这部分代码模拟了一个异步操作（这里用setTimeout模拟延迟）</span><br><span class="line">        		// 在实际应用中，可能是一个从数据库读取数据的操作或其他异步任务</span><br><span class="line">                let data = &#x27;数据库中的用户数据&#x27;;</span><br><span class="line">                resolve</span><br><span class="line">                resolve(data);</span><br><span class="line">                // 如果数据读取成功，可以调用resolve方法并传入数据</span><br><span class="line"></span><br><span class="line">                let err = &#x27;数据读取失败&#x27;;</span><br><span class="line">                reject(err);</span><br><span class="line">            &#125;, 1000);</span><br><span class="line">        &#125;);</span><br><span class="line">        //new Promise接收一个执行器函数作为参数，这个函数内通常会包含异步操作，并通过调用resolve或reject来决定Promise的状态和传递的结果。</span><br><span class="line">        //调用 promise 对象的 then 方法</span><br><span class="line">        p.then(function(value)&#123;</span><br><span class="line">            console.log(value);</span><br><span class="line">        &#125;, function(reason)&#123;</span><br><span class="line">            console.error(reason);</span><br><span class="line">        &#125;)</span><br><span class="line">        // .then方法接受两个回调函数作为参数，第一个回调在Promise被resolve时调用，第二个回调在Promise被reject时调用。在这段代码里，当Promise状态变为fulfilled（即resolve）时，会在控制台打印出结果值；当Promise状态变为rejected（即reject）时，会在控制台以错误形式打印出拒绝原因。</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2024/02/24/ES6/" data-id="clszucuxb0000vgws2m8jdlat" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
     <article id="post-REACT" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2024/02/23/REACT/" class="article-date">
@@ -544,12 +490,56 @@
 
 
   
-
-
-  <nav id="page-nav">
+    <article id="post-PatentOCR" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/11/28/PatentOCR/" class="article-date">
+  <time class="dt-published" datetime="2023-11-28T03:06:14.000Z" itemprop="datePublished">2023-11-28</time>
+</a>
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
-  </nav>
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2023/11/28/PatentOCR/">应用OCR模型对特定文档识别</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>OCR(光学字符识别)是个很成熟的技术，特别是随着深度学习的发展，目前对文字区域的识别能力以及识别可信度都很高，但是对于具体场景的应用，各类OCR现在做的并不好（没有吐槽WPS的意思）。这里做了一个基于PaddleOCR的对专利进行处理的落地应用。</p>
+<h2 id="PaddleOCR的快速使用"><a href="#PaddleOCR的快速使用" class="headerlink" title="PaddleOCR的快速使用"></a>PaddleOCR的快速使用</h2><p>PaddleOCR的使用在这里已经写的很详细就不多做赘述了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/image-20231123135349443.png" alt="image-20231123135349443"></p>
+<p>直接对上面PDF格式文件进行识别的具体效果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
+        
+          <p class="article-more-link">
+            <a href="/2023/11/28/PatentOCR/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/11/28/PatentOCR/" data-id="clpte9agn0002qkws9gd13788" data-title="应用OCR模型对特定文档识别" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
 
 </section>
         
@@ -580,10 +570,6 @@
       <ul>
         
           <li>
-            <a href="/2024/02/24/ES6/">(no title)</a>
-          </li>
-        
-          <li>
             <a href="/2024/02/23/REACT/">REACT小结</a>
           </li>
         
@@ -597,6 +583,10 @@
         
           <li>
             <a href="/2024/02/04/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/">Lambda在Mybatis-plus中的使用</a>
+          </li>
+        
+          <li>
+            <a href="/2024/01/30/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/">MyBatis-plus使用指北</a>
           </li>
         
       </ul>
