@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HuangZhen&#39;s Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统 123456789101112&#x2F;&#x2F; 创建userLambdaQueryWrapperLamb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HuangZhen&#39;s Home">
+<meta property="og:url" content="http://example.com/2024/02/24/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="HuangZhen&#39;s Home">
+<meta property="og:description" content="Lambda在Mybatis-plus中的使用Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。 LambdaQueryWrapper1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list 由于是工作中的代码，假装我在做经典的学生管理系统 123456789101112&#x2F;&#x2F; 创建userLambdaQueryWrapperLamb">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-24T08:48:39.704Z">
+<meta property="article:modified_time" content="2024-02-11T06:35:29.868Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="HuangZhen's Home" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">HuangZhen&#39;s Home</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Lambda在Mybatis-plus中的使用" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.704Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Lambda在Mybatis-plus中的使用"><a href="#Lambda在Mybatis-plus中的使用" class="headerlink" title="Lambda在Mybatis-plus中的使用"></a>Lambda在Mybatis-plus中的使用</h1><p>Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。</p>
+<h3 id="LambdaQueryWrapper"><a href="#LambdaQueryWrapper" class="headerlink" title="LambdaQueryWrapper"></a>LambdaQueryWrapper</h3><p>1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list</p>
+<p>由于是工作中的代码，假装我在做经典的学生管理系统</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 创建userLambdaQueryWrapper</span><br><span class="line">LambdaQueryWrapper&lt;User&gt; userLambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();</span><br><span class="line">// 通过wrapper中的eq方法对request与entity的Id字段进行匹配，获得相关的数据库词条</span><br><span class="line">// 这里的User是一个由Mybatis-plus生成的与数据库表字段一一对应的一个entity</span><br><span class="line">userLambdaQueryWrapper.eq(User::getId, request.getId());</span><br><span class="line">// 这里的orderBy是由AbstractWrapper提供的排序方法，这里的作用是根据createtime排序</span><br><span class="line">// orderBy(boolean condition, boolean isAsc, R column)</span><br><span class="line">UserLambdaQueryWrapper.orderBy(true, false, User::getCreateTime);</span><br><span class="line">// page东西多下面单独开一栏</span><br><span class="line">Page&lt;User&gt; page = new Page&lt;&gt;(getUserListRequest.getPageVO().getCurrent(),getUserListRequest.getPageVO().getSize());</span><br><span class="line">// 使用分页对象和查询条件调用服务方法进行分页查询</span><br><span class="line">Page&lt;User&gt; userPage = userService.page(page, userLambdaQueryWrapper);</span><br></pre></td></tr></table></figure>
+
+<p>Page是由Mybatis-plus提供的一个分页的类，构造器最多四个参数，有5种重载方法我的代码中采用了2参的构造方法，也就是Page(long current, long size)&#96;,分别设定当前页以及每页的大小</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public Page(long current, long size, long total, boolean searchCount)</span><br></pre></td></tr></table></figure>
+
+<p>也就是说在我的代码中，我设定了一个VO用来记录<code>Page</code>相关的内容，于是通过下面的userService中的page方法(方法继承自<code>Iservice.class</code>)，获取指定页面的数据库词条，这里的指定页面到了数据库中也就是第$(current-1) \times size$到$current \times size$条数据，那么到这一步已经完成了查询。</p>
+<p>2.假设现在有一个新的需求，那就是有一个评语表，这个表是一个和主表互相之间独立的，但是双方通过一个外键（逻辑上的，数据库没有关联）互相关联，应该如何把每个User的评语提取出来并且加入到User类里？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List&lt;UserCommentVo&gt; UserCommentVos = userPage.getRecords().stream()</span><br><span class="line">				// 设置过滤器</span><br><span class="line">                .filter(vo -&gt; vo.getGenerateStatus() == 2)</span><br><span class="line">                // UserLALALA随意命名</span><br><span class="line">                .map(UserLALALA -&gt; &#123;</span><br><span class="line">                    UserCommentVo vo = new UserCommentVo();</span><br><span class="line">                    BeanUtils.copyProperties(UserLALALA, vo);</span><br><span class="line">                    vo.setCreateTime(new Date());</span><br><span class="line">                    Integer userId = UserLALALA.getId();               vo.setComment(userCommentService.getCommentById(userId));</span><br><span class="line">                    return vo;</span><br><span class="line">                &#125;)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">                // 遍历过滤后的List</span><br><span class="line">                UserCommentVos.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p><code>List&lt;UserCommentVo&gt; UserCommentVos</code>因为这玩意儿是要发给前端的，所以用vo命名</p>
+<p><code>userPage.getRecords()</code>在上面指定page的页面以及大小后，获取该页面的内容</p>
+<p><code>.stream().filter(...).map(...)</code> Java8功能，表示“从集合中获取流，根据特定条件过滤出部分元素，然后对这些元素应用某种转换规则”的数据处理流程。</p>
+<p><code>.stream()</code>方法将一个集合或数组转换成一个流（Stream）</p>
+<p><code>.filter(Predicate&lt;T&gt; predicate)</code>定义了一个条件，用于从原始流中筛选出满足该条件的元素。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; words = Arrays.asList(&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;, &quot;date&quot;);</span><br><span class="line">List&lt;String&gt; filteredWords = words.stream()</span><br><span class="line">                                 .filter(word -&gt; word.startsWith(&quot;c&quot;))</span><br><span class="line">                                 .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p><code>.map(Function&lt;T, R&gt; mapper)</code>是一个中间操作，它接受一个函数式接口Function作为参数。</p>
+<p>Function接口的<code>apply(T t)</code>方法定义了如何将流中的每个元素转换为另一种类型的结果。</p>
+<p>map操作会应用于流中的每一个元素，生成一个新的流，其中包含的是原元素经过转换后的新值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5);</span><br><span class="line">List&lt;Double&gt; squaredNumbers = numbers.stream()</span><br><span class="line">                                    .map(number -&gt; Math.pow(number, 2)) // 将每个数平方</span><br><span class="line">                                    .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<h3 id="LambdaUpdateWrapper"><a href="#LambdaUpdateWrapper" class="headerlink" title="LambdaUpdateWrapper"></a>LambdaUpdateWrapper</h3><p>有了之前Query的经验，其实这里的Update就是照葫芦画瓢了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void setGenerateStatusById(Integer Id)&#123;</span><br><span class="line">    LambdaUpdateWrapper&lt;User&gt; wrapper = new LambdaUpdateWrapper&lt;&gt;();</span><br><span class="line">    // 先根据传入的Id匹配到User表中的Id</span><br><span class="line">    wrapper.eq(User::getId,Id);</span><br><span class="line">    // 将这个Id的generatestatus设置为2</span><br><span class="line">    wrapper.set(User::getGenerateStatus,2);</span><br><span class="line">    // 使传入的wrapper生成并执行对应的SQL UPDATE语句</span><br><span class="line">    // 从而完成对User表中特定记录的状态更新。</span><br><span class="line">    this.update(wrapper);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="clszucuxg0004vgws6kc9dadv" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/02/24/JavaScript%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/REACT/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

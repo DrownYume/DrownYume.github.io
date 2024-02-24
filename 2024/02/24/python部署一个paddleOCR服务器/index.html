@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HuangZhen&#39;s Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="通过uvicorn与FastAPI部署一个py服务器安装依赖首先进入虚拟环境，这里就不多说了 首先安装fastapi 1pip install fastapi  然后安装uvicorn 1pip install uvicorn  接着安装python-multipart 1pip install python-multipart  安装paddleOCR的教程如下，不是这次重点 https:&#x2F;&#x2F;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HuangZhen&#39;s Home">
+<meta property="og:url" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="HuangZhen&#39;s Home">
+<meta property="og:description" content="通过uvicorn与FastAPI部署一个py服务器安装依赖首先进入虚拟环境，这里就不多说了 首先安装fastapi 1pip install fastapi  然后安装uvicorn 1pip install uvicorn  接着安装python-multipart 1pip install python-multipart  安装paddleOCR的教程如下，不是这次重点 https:&#x2F;&#x2F;g">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211092147083.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211094012302.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103415961.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211102959555.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103744387.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110030249.png">
+<meta property="og:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110212396.png">
+<meta property="article:published_time" content="2024-02-24T08:48:39.707Z">
+<meta property="article:modified_time" content="2024-02-11T06:35:29.886Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211092147083.png">
+  
+    <link rel="alternate" href="/atom.xml" title="HuangZhen's Home" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">HuangZhen&#39;s Home</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-python部署一个paddleOCR服务器" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.707Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通过uvicorn与FastAPI部署一个py服务器"><a href="#通过uvicorn与FastAPI部署一个py服务器" class="headerlink" title="通过uvicorn与FastAPI部署一个py服务器"></a>通过uvicorn与FastAPI部署一个py服务器</h1><h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><p>首先进入虚拟环境，这里就不多说了</p>
+<p>首先安装fastapi</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install fastapi</span><br></pre></td></tr></table></figure>
+
+<p>然后安装uvicorn</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install uvicorn</span><br></pre></td></tr></table></figure>
+
+<p>接着安装python-multipart</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install python-multipart</span><br></pre></td></tr></table></figure>
+
+<p>安装paddleOCR的教程如下，不是这次重点</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</a></p>
+<h2 id="Uvicorn"><a href="#Uvicorn" class="headerlink" title="Uvicorn"></a>Uvicorn</h2><h3 id="什么是-Uvicorn-？"><a href="#什么是-Uvicorn-？" class="headerlink" title="什么是 Uvicorn ？"></a>什么是 Uvicorn ？</h3><p>Uvicorn 是基于 uvloop 和 httptools 构建的非常快速的 ASGI 服务器。</p>
+<h3 id="什么是-uvloop-和-httptools-？"><a href="#什么是-uvloop-和-httptools-？" class="headerlink" title="什么是 uvloop 和 httptools ？"></a>什么是 uvloop 和 httptools ？</h3><p>答： uvloop 用于替换标准库 asyncio 中的事件循环，使用 Cython 实现，它非常快，可以使 asyncio 的速度提高 2-4 倍。asyncio 不用我介绍吧，写异步代码离不开它。</p>
+<p>httptools 是 nodejs HTTP 解析器的 Python 实现。</p>
+<h3 id="什么是-ASGI-服务器？"><a href="#什么是-ASGI-服务器？" class="headerlink" title="什么是 ASGI 服务器？"></a>什么是 ASGI 服务器？</h3><p>答： 异步网关协议接口，一个介于网络协议服务和 Python 应用之间的标准接口，能够处理多种通用的协议类型，包括 HTTP，HTTP2 和 WebSocket。</p>
+<h3 id="请简单介绍下-Uvicorn"><a href="#请简单介绍下-Uvicorn" class="headerlink" title="请简单介绍下 Uvicorn"></a>请简单介绍下 Uvicorn</h3><p>答：目前，Python 仍缺乏异步的网关协议接口，ASGI 的出现填补了这一空白，现在开始，我们能够使用共同的标准为所有的异步框架来实现一些工具，ASGI 帮助 Python 在 Web 框架上和 Node.JS 及 Golang 相竟争，目标是获得高性能的 IO 密集型任务，ASGI 支持 HTTP2 和 WebSockets，WSGI 是不支持的。</p>
+<p>Uvicorn 目前支持 HTTP1.1 和 WebSocket，计划支持 HTTP2。</p>
+<p><strong>以上摘自知乎大佬：</strong></p>
+<p>快如闪电的异步服务器Uvicorn - somenzz的文章 - 知乎<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/115237857">https://zhuanlan.zhihu.com/p/115237857</a></p>
+<h2 id="fastapi"><a href="#fastapi" class="headerlink" title="fastapi"></a>fastapi</h2><p><code>FastAPI</code> 是一个为api提供所有功能的Python类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@app.post(&quot;/api/***/&quot;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>@app.post(&quot;/api/***/&quot;)</code>：这是 FastAPI 中的装饰器，用于定义一个 HTTP POST 方法。它指定了 URL 路径 <code>/api/***/</code>，当客户端向这个 URL 发送 POST 请求时，将执行下面定义的函数。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">async def ###(image: UploadFile):</span><br><span class="line">##############</span><br><span class="line">return ####</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定义了一个异步函数，它接受一个参数 <code>image</code> 类型为 <code>UploadFile</code>。<code>UploadFile</code> 是 FastAPI 提供的一种特殊类型，用于处理上传的文件。</li>
+</ul>
+<h2 id="部署服务器"><a href="#部署服务器" class="headerlink" title="部署服务器"></a>部署服务器</h2><p>代码是旁边的大佬教的所以就不贴完整的了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># app表示创建的启用对象</span><br><span class="line">app = FastAPI()</span><br><span class="line"># PaddleOCR</span><br><span class="line">ocr = PaddleOCR(use_angle_cls=True, lang=&quot;en&quot;)</span><br><span class="line"></span><br><span class="line">@app.post(&quot;/***/&quot;)</span><br><span class="line">async def ###(###):</span><br><span class="line">##############</span><br><span class="line">return ####</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	uvicorn.run(app, host=&#x27;127.0.0.1&#x27;, port=8000)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211092147083.png" alt="image-20231211092147083"></p>
+<p>然后我们访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:8000/***/">http://127.0.0.1:8000/***/</a> 这个网址</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211094012302.png" alt="image-20231211094012302"></p>
+<p>日常翻车</p>
+<p>来定位一下问题所在，首先<code>ping localhost</code>，发现来自::1的回复，说明是ipv6地址，所以localhost没有指向127.0.0.1</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103415961.png" alt="image-20231211103415961"></p>
+<p>使用<code>telnet 127.0.0.1 8000</code>命令查看端口使用情况</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211102959555.png" alt="image-20231211102959555"></p>
+<p><strong>以下操作参考自CSDN</strong>：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/Dhe6C%E5%A4%A7%E4%BD%AC%E7%9A%84%E6%96%87%E7%AB%A0">http://t.csdnimg.cn/Dhe6C大佬的文章</a></p>
+<p>输入命令<code>netsh interface ipv6 show prefixpolicies</code></p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103744387.png" alt="image-20231211103744387"></p>
+<p>现在需要设置使::&#x2F;96、::ffff:0:0&#x2F;96的优先级高于::&#x2F;0和::1&#x2F;128，在命令行中依次设置优先级：</p>
+<p>netsh int ipv6 set prefix ::&#x2F;96 50 0<br>netsh int ipv6 set prefix ::ffff:0:0&#x2F;96 40 1<br>netsh int ipv6 set prefix 2002::&#x2F;16 35 2<br>netsh int ipv6 set prefix 2001::&#x2F;32 30 3<br>netsh int ipv6 set prefix ::1&#x2F;128 10 4<br>netsh int ipv6 set prefix ::&#x2F;0 5 5<br>netsh int ipv6 set prefix fc00::&#x2F;7 3 13<br>netsh int ipv6 set prefix fec0::&#x2F;10 1 11<br>netsh int ipv6 set prefix 3ffe::&#x2F;16 1 12<br>再次输入命令<code>netsh interface ipv6 show prefixpolicies</code></p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110030249.png" alt="image-20231211110030249"></p>
+<p><code>ping localhost</code>结果</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110212396.png" alt="image-20231211110212396"></p>
+<p>先写bug再修bug，嗯，又是充实的一天呢。</p>
+<h2 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h2><p>服务器部署完了就该发请求了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">url = &quot;http://127.0.0.1:8000/***&quot;</span><br><span class="line">headers = &#123;&#125;</span><br><span class="line">#	定义了一个空字典 headers，用于存放请求头信息。</span><br><span class="line">image_path = &quot; &quot;</span><br><span class="line">with open(image_path, &#x27;rb&#x27;) as image_file:</span><br><span class="line">#	&#x27;rb&#x27; 二进制模式读取</span><br><span class="line">#	as image_file 将文件对象存储在 image_file 变量中。</span><br><span class="line">    files = &#123;&#x27;image&#x27;: (&#x27;image.png&#x27;, image_file, &#x27;image/png&#x27;)&#125;</span><br><span class="line">    #	创建一个字典 files，它包含一个键值对，</span><br><span class="line">    #	键为 &#x27;image&#x27;，值为一个元组 (filename, fileobj, content_type)。</span><br><span class="line">    #	其中 filename 是上传图片的文件名（可以自定义），</span><br><span class="line">    #	fileobj 是从上一步中打开的文件对象，</span><br><span class="line">    #	content_type 是内容类型（这里是 &#x27;image/png&#x27;，表示这是一个 PNG 图片）。</span><br><span class="line">    response = requests.post(url, files=files, headers=headers)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以获得一个<code>&lt;class &#39;requests.models.Response&#39;&gt;</code>的返回值</p>
+<p>通过<code>response.text</code>获得原文，这里顺手介绍一下<code>requests.models.Response</code>常用熟悉</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">response.text  # 响应返回的文本（字符串）</span><br><span class="line">response.content # 响应返回的内容（二进制），一般用来爬取视频</span><br><span class="line">response.status_code # 响应的状态码</span><br><span class="line">response.url # 获取请求连接地址</span><br><span class="line">response.cookies # 获取返回的cookies信息</span><br><span class="line">response.cookies.get_dict() # 获取返回的cookies信息</span><br><span class="line">response.request # 获取请求方式</span><br><span class="line">response.json()  # 将结果进行反序列化</span><br></pre></td></tr></table></figure>
+
+<p>获得请求后PaddleOCR会返回一个有非常多[]的列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># [[[[[255.0,52.0],[348.0,54.0],[348.0,67.0],[255.0,66.0]],[&quot;xxx&quot;,0.975827693939209]],[[[181.0,71.0],[189.0,71.0],[189.0,80.0],[181.0,80.0]],[&quot;xxx&quot;,0.9987519979476929]],[[[415.0,70.0],[423.0,70.0],[423.0,80.0],[415.0,80.0]],[&quot;xxx&quot;,0.9969109892845154]]</span><br><span class="line"># 大概是这样，太长我就不截全了，解释一下构成</span><br><span class="line"># 第一个框内容 data[0][0][0][0]</span><br><span class="line"># data[0][0][0][0]左上角坐标(x,y)</span><br><span class="line"># data[0][0][0][2]右下角坐标(x,y)</span><br><span class="line"># data[0][0][1][0]文本内容</span><br><span class="line"># data[0][0][1][1]文本置信度</span><br><span class="line"># 第二个框内容 data[0][1][0][0]</span><br><span class="line"># 不存在的东西 data[1][][][]等</span><br><span class="line"># 根据需求取用即可</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-id="clszucuxh0006vgws7nxy4kzt" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2024/02/24/REACT/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/REACT/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

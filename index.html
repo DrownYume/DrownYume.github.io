@@ -69,6 +69,659 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-文件上传" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.710Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="文件上传从前端到数据库"><a href="#文件上传从前端到数据库" class="headerlink" title="文件上传从前端到数据库"></a>文件上传从前端到数据库</h1><p>​	本篇博客我试着结合我现在的项目说一下文件上传这个功能从前端(react)到后端(spring)再到数据库。</p>
+<h2 id="前端页面"><a href="#前端页面" class="headerlink" title="前端页面"></a>前端页面</h2><p>首先要有一个页面用来上传PDF，这个页面应该提供拖拽或点击上传功能，点击PDF以后能自动下载该文件，点击删除则该条消失，并且允许上传多个PDF。</p>
+<p><img src="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/image-20240223133506654.png" alt="image-20240223133506654"></p>
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>首先定义这样一个组件<code>FileUploadBatchComponent(props) </code>，首先定义一个事件处理器用来阻止浏览器默认行为，方便定制拖放区域的行为和视觉效果。具体的函数定义就不放了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">useEffect(() =&gt; &#123;</span><br><span class="line">        if (drop.current) &#123;</span><br><span class="line">            drop.current.addEventListener(&#x27;dragover&#x27;, handleDragOver);	// 在拖动文件进入一个元素时，如果没有指定dragover事件处理函数并阻止其默认行为，浏览器不会认为该元素是可以接受拖放的目标。</span><br><span class="line">            drop.current.addEventListener(&#x27;drop&#x27;, handleDrop);</span><br><span class="line">            drop.current.addEventListener(&#x27;dragenter&#x27;, handleDragEnter);</span><br><span class="line">            drop.current.addEventListener(&#x27;dragleave&#x27;, handleDragLeave);</span><br><span class="line">        &#125;</span><br><span class="line">        return () =&gt; &#123;</span><br><span class="line">            if (drop.current) &#123;</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragover&#x27;, handleDragOver);</span><br><span class="line">                drop.current.removeEventListener(&#x27;drop&#x27;, handleDrop);</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragenter&#x27;, handleDragEnter);</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragleave&#x27;, handleDragLeave);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;, [instanceId]);</span><br></pre></td></tr></table></figure>
+
+<p>这里只要知道，进入handleDrop方法后，不仅会禁用浏览器的默认行为，还会通过以下代码将文件存入mysql中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (files) &#123;</span><br><span class="line">            const fileDatas = new FormData();</span><br><span class="line">            Array.from(files).forEach(f =&gt; &#123;</span><br><span class="line">                fileDatas.append(&#x27;files&#x27;, f)</span><br><span class="line">            &#125;)</span><br><span class="line">            fileDatas.append(&#x27;instanceId&#x27;, instanceId)</span><br><span class="line">            onInputInfoChange(&#x27;file&#x27;, fileDatas)</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>onInputInfoChange</code>回调函数，将<code>fileDatas</code>作为参数传入将其发送给后端进行持久化存储。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">const handleFileUploadButtonClick = async e =&gt; &#123;</span><br><span class="line">	const fileHandle = await window.showOpenFilePicker(&#123;</span><br><span class="line">            types: [&#123;</span><br><span class="line">                accept: &#123;</span><br><span class="line">                    &#x27;application/pdf&#x27;: [&#x27;.pdf&#x27;]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;],</span><br><span class="line">            multiple: true</span><br><span class="line">        &#125;);</span><br><span class="line">    // 打开文件选择对话框，允许用户选择.pdf类型的文件，并可以选择多个文件。</span><br><span class="line">    const fileDatas = new FormData();</span><br><span class="line">	const fileHandleSync = await Promise.all(fileHandle.map(item =&gt; &#123;</span><br><span class="line">            return item.getFile()</span><br><span class="line">        &#125;))	//	从fileHandle中同步获取所有选定文件的实际文件内容，通过Promise.all方法并发地对每个文件句柄调用getFile方法，然后将返回的所有文件对象存储到数组fileHandleSync中。</span><br><span class="line">    if ((fileOssPathList?.length + fileHandleSync?.length) &gt; 10) &#123;</span><br><span class="line">            openWarnSnackbar(&#x27;最多上传十份文件&#x27;)</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">    fileHandleSync.map(item =&gt; &#123;</span><br><span class="line">            fileDatas.append(&#x27;files&#x27;, item)</span><br><span class="line">        &#125;)	//	遍历fileHandleSync中的每个文件，将其添加到FormData对象fileDatas中，键名为&#x27;files&#x27;。</span><br><span class="line">    if (files) &#123;</span><br><span class="line">            fileDatas.append(&#x27;instanceId&#x27;, instanceId)</span><br><span class="line">            onInputInfoChange(&#x27;file&#x27;, fileDatas)</span><br><span class="line">        &#125;	</span><br><span class="line">     //	将实例ID（instanceId）添加到fileDatas中，键名为&#x27;instanceId&#x27;。调用onInputInfoChange回调函数，将fileDatas作为参数传入，表明文件数据已经更新</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件删除"><a href="#文件删除" class="headerlink" title="文件删除"></a>文件删除</h3><p>删除就简单多了，调用后端的<code>deleteUploadedFileByOssPath</code>即可，调用完后触发重新渲染，就会发现这个文件消失了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const handleDeleteUploadedFile = (item, event) =&gt; &#123;</span><br><span class="line">        event.preventDefault()</span><br><span class="line">        event.stopPropagation();</span><br><span class="line">        deleteUploadedFileByOssPath(&#123;instanceId: instanceId, ossPath: item&#125;).then(r =&gt; &#123;</span><br><span class="line">            fileReload()</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件下载"><a href="#文件下载" class="headerlink" title="文件下载"></a>文件下载</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const handleOwnFileDownloadClick = (event, item) =&gt; &#123;</span><br><span class="line">        console.log(&#x27;handleOwnFileDownloadClick&#x27;)</span><br><span class="line">        event.preventDefault()</span><br><span class="line">        event.stopPropagation();</span><br><span class="line">        getFilePathByOss(&#123;ossPath: item&#125;).then(r =&gt; &#123;</span><br><span class="line">            console.log(r)</span><br><span class="line">            downloadFileByUrl(r.data, item.replace(/spai\/[0-9]+\/[0-9]+\/[0-9]+\/[0-9]+_/g, &#x27;&#x27;))</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="页面绘制"><a href="#页面绘制" class="headerlink" title="页面绘制"></a>页面绘制</h3><p>就不细说了，上传属于一个子组件，除了文件上传以外的内容基本都由父组件实现并传入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">return &lt;&gt;</span><br><span class="line">	&lt;div onClick=&#123;handleFileUploadButtonClick&#125;&gt;</span><br><span class="line">		&#123;fileOssPathList == null || fileOssPathList?.length === 0 ? // 判断是否有文件</span><br><span class="line">			&lt;div&gt;</span><br><span class="line">			......</span><br><span class="line">			&lt;/div&gt;	</span><br><span class="line">			: </span><br><span class="line">			&lt;div&gt;</span><br><span class="line">			......</span><br><span class="line">			&lt;/div&gt;</span><br><span class="line">		&#125;</span><br><span class="line">&lt;/&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>onInputInfoChange</code>中被写入的<code>FormData</code>被通过api传给后端，这个方法是通过<code>handleInputInfoChange</code>传给这个子组件的，而这个<code>handleInputInfoChange</code>在每个不同的模块中有不同的实现，只不过最后都被叫成了<code>onInputInfoChange</code>传入到上传组件中（让我想起了Java一个子类继承多个父类？？？）。</p>
+<p>最后补了一个<code>useEffect</code>，当<code>functionInstanceInputInfo.file</code>发生变动的时候调用后端的<code>uploadTemporaryFileBatch</code>接口，接下来说后端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">useEffect(() =&gt; &#123;</span><br><span class="line">        if (functionInstanceInputInfo.file != null) &#123;</span><br><span class="line">            dispatch(setUploadState(true))</span><br><span class="line">            uploadTemporaryFileBatch(functionInstanceInputInfo.file).then(r =&gt; &#123;</span><br><span class="line">                getNewestInputInfo(null)</span><br><span class="line">                changeButtonCode()</span><br><span class="line">                dispatch(setUploadState(false))</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [functionInstanceInputInfo.file]);</span><br></pre></td></tr></table></figure>
+
+<h2 id="后端部分"><a href="#后端部分" class="headerlink" title="后端部分"></a>后端部分</h2><h3 id="controller"><a href="#controller" class="headerlink" title="controller"></a>controller</h3><p>然后进入到spring boot部分，首先通过一个controller接收页面，同时写前后端的时候我才深刻感受到了命名一样的重要性，能一样请务必一样，从前端到监听的端口到方法名。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Operation(summary = &quot;暂时保存文件&quot;)</span><br><span class="line">@PostMapping(&quot;uploadTemporaryFileBatch&quot;)</span><br><span class="line">public ResultVO uploadTemporaryFileBatch(@RequestParam(&quot;files&quot;) List&lt;MultipartFile&gt; files, @RequestParam Integer instanceId) &#123;</span><br><span class="line">        commonBiz.uploadFileBatch(files, instanceId);</span><br><span class="line">        return ResultVO.success();</span><br><span class="line">    &#125; // @RequestParam限定传入的类型</span><br></pre></td></tr></table></figure>
+
+<h3 id="Biz"><a href="#Biz" class="headerlink" title="Biz"></a>Biz</h3><p>在Biz中我们要实现一个批量传文件的方法，首先从redis中拿数据，下面的代码中已经写好了地址的格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RBucket&lt;Object&gt; bucket = redisson.getBucket(&quot;functionInstanceDetail::&quot; + instanceId);</span><br></pre></td></tr></table></figure>
+
+<p>打开another或者RedisInsight根据Bucket查找到相应的数据<code>&#123;&quot;instanceId&quot;:496,&quot;ossPath&quot;:[&quot;xxx/xx/x/xx/abababababababab.pdf&quot;],&quot;projectType&quot;:0&#125;</code>，至于为什么是从redis中拿数据，因为我在前端的drop方法中已经把文件存入数据库了，所以存入redis的也是文件的路径。</p>
+<p>经过<code>.get()</code>方法并<code>.parseObject()</code>将这个bucket的内容转为我们需要的<code>functionInstanceInputDto</code></p>
+<p>调用<code>ossUtil</code>工具类的<code>uploadFiles</code>方法，将传入的文件列表<code>files</code>上传至OSS（对象存储服务），并将返回的OSS路径列表存储在<code>fileOssList</code>变量中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; fileOssList = ossUtil.uploadFiles(files);</span><br></pre></td></tr></table></figure>
+
+<p>然后就是熟悉的set过程，略略略</p>
+<p>将处理后的<code>instanceInputDto</code>对象转换为JSON字符串，并将这个字符串写回Redis中对应的键下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = JSON.toJSONString(instanceInputDto);</span><br><span class="line">bucket.set(str);</span><br></pre></td></tr></table></figure>
+
+<p>之后是与数据库相关的操作，由于我们用了Mybatis-plus，sql语句很少，具体思路就是通过<code>functionInstanceService</code>从数据库中获取与<code>instanceId</code>相对应的<code>SpFunctionInstance</code>实体对象。调用<code>updateById</code>方法，将更新后的<code>functionInstance</code>对象保存回数据库。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" data-id="clszucuxh0007vgws6ag3g0xa" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-接口测试工具postman" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.709Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="接口测试工具postman"><a href="#接口测试工具postman" class="headerlink" title="接口测试工具postman"></a>接口测试工具postman</h1><p>Postman是一款支持http协议的接口调试与测试工具，其主要特点就是功能强大，使用简单且易用性好 。无论是开发人员进行接口调试，还是测试人员做接口测试，postman都是我们的首选工具之一 。</p>
+<h2 id="postman界面"><a href="#postman界面" class="headerlink" title="postman界面"></a>postman界面</h2><p>首先进入postman之后创建一个请求，进入如下界面<img src="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/image-20231221140501559.png" alt="image-20231221140501559"></p>
+<p>下图是Postman的工作区间，各个模块功能的介绍如下：</p>
+<p>1、New，在这里创建新的请求、集合或环境；还可以创建更高级的文档、Mock Server 和 Monitor以及API。<br>2、Import，这用于导入集合或环境。有一些选项，例如从文件，文件夹导入，链接或粘贴原始文本。<br>3、Runner，可以通过Collection Runner执行自动化测试。后续介绍。<br>4、Open New，打开一个新的标签，Postman窗口或Runner窗口。<br>5、My Workspace - 可以单独或以团队的形式创建新的工作区。<br>6、Invite - 通过邀请团队成员在工作空间上进行协同工作。<br>7、History - 所有请求的历史记录，这样可以很容易地跟踪你所做的操作。<br>8、Collections - 通过创建集合来组织你的测试套件。每个集合可能有子文件夹和多个请求。请求或文件夹也可以被复制。<br>9、Request tab - 这将显示您正在处理的请求的标题。默认对于没有标题的请求会显示“Untitled Request”。<br>10、HTTP Request - 单击它将显示不同请求的下拉列表，例如 GET, POST, COPY, DELETE, etc. 在测试中，最常用的请求是GET和POST。<br>11、Request URL - 也称为端点，显示API的URL。.<br>12、Save - 如果对请求进行了更改，必须单击save，这样新更改才不会丢失或覆盖。<br>13、Params - 在这里将编写请求所需的参数，比如Key - Value。<br>14、Authorization - 为了访问api，需要适当的授权。它可以是Username、Password、Token等形式。<br>15、Headers - 请求头信息<br>16、Body - 请求体信息，一般在POST中才会使用到<br>17、Pre-request Script - 请求之前 先执行脚本，使用设置环境的预请求脚本来确保在正确的环境中运行测试。<br>18、Tests - 这些脚本是在请求期间执行的。进行测试非常重要，因为它设置检查点来验证响应状态是否正常、检索的数据是否符合预期以及其他测试。<br>19、Settings - 最新版本的有设置，一般用不到。</p>
+<p>偷一张大佬的图：</p>
+<p><img src="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3piajE4MzE0NDY5Mzk1,size_16,color_FFFFFF,t_70.png" alt="img"></p>
+<h2 id="发送GET请求"><a href="#发送GET请求" class="headerlink" title="发送GET请求"></a>发送GET请求</h2><p>我们使用常用的测试网络连接是否正常的网站进行测试，200表示成功了</p>
+<p><img src="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/image-20231221142532569.png" alt="image-20231221142532569"></p>
+<h2 id="使用POST测试自己的服务器"><a href="#使用POST测试自己的服务器" class="headerlink" title="使用POST测试自己的服务器"></a>使用POST测试自己的服务器</h2><p>首先我已经通过<code>uvicorn</code>和<code>Fastapi</code>部署了一个服务器端口为8002</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@app.post(&quot;/api/lalala/&quot;)</span><br><span class="line">async def lalala(url: str):</span><br><span class="line">	response = requests.get(url)</span><br><span class="line">	content = io.BytesIO(response.content)</span><br><span class="line">	以下省略</span><br><span class="line">	</span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	uvicorn.run(app, host=None, port=8002)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里我的key设置为url，value设置为了一个str格式</p>
+<p>进入postman以后首先在url部分输入服务器的地址，使用<code>ip addr</code>就能取得，加上端口号，再加上<code>/api/lalala/</code>,在下方输入键和值之后postman会自动在<code>url</code>处补全，点击发送即可。<img src="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/image-20240105142754898.png" alt="image-20240105142754898"></p>
+<p>稍等一下就取得了我需要的数据，打个厚码，响应时间比较久是因为用到了深度学习模型，处理起来比较慢，纯文本是非常快的。</p>
+<p><img src="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/image-20240105142946143.png" alt="image-20240105142946143"></p>
+<p>本文引用CSDN博主「软测小生」的原创文章，原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zbj18314469395/article/details/106693615">https://blog.csdn.net/zbj18314469395/article/details/106693615</a></p>
+<p>本文引用CSDN博主「宗而研之」的原创文章，原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zong596568821xp/article/details/123395046?ops_request_misc=%7B%22request_id%22:%22170313733616800197018001%22,%22scm%22:%2220140713.130102334..%22%7D&request_id=170313733616800197018001&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-2-123395046-null-null.142%5Ev96%5Epc_search_result_base9&utm_term=postman&spm=1018.2226.3001.4187">一文带你全面解析postman工具的使用（基础篇）-CSDN博客</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/" data-id="clszucuxg0005vgwse2jzhb5r" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-REACT" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/REACT/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.708Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="REACT小结"><a href="#REACT小结" class="headerlink" title="REACT小结"></a>REACT小结</h1><p>一周前的我：我后端代码这么优雅，前端岂不是事半功倍？</p>
+<p>一周后的我：这后端是哪个傻*写的？<del>哦，是我</del></p>
+<ol>
+<li>英文官网:<a target="_blank" rel="noopener" href="https://reactjs.org/"> https://reactjs.org/</a></li>
+<li>中文官网: <a target="_blank" rel="noopener" href="https://react.docschina.org/">https://react.docschina.org/</a></li>
+</ol>
+<h2 id="REACT优点"><a href="#REACT优点" class="headerlink" title="REACT优点"></a>REACT优点</h2><p>1.原生JavaScript操作DOM繁琐、效率低(DOM-API操作UI)。</p>
+<p>2.使用JavaScript直接操作DOM,浏览器会进行大量的重绘重排。</p>
+<p>3.原生JavaScript没有组件化编码方案,代码复用率低。</p>
+<p>4.采用组件化模式，声明式编码，提高开发效率及组件复用率。</p>
+<p>5.在React Native中可以使用React语法进行移动端开发。</p>
+<p>6.使用虚拟DOM+优秀的Diffing 算法，尽量减少与真实DOM的交互。</p>
+<p>……</p>
+<p><strong>好，我们已经完整地学完react了，让我们来用它完成工作吧！</strong></p>
+<p><img src="/2024/02/24/REACT/thid=OIP-C.G_gG5WKC3GZS0rmN5gYi_gAAAA&w=175&h=185&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="地铁老人问号脸 的图像结果.大小：175 x 185。 资料来源：www.guangyuanol.cn"></p>
+<p>一周后发版我也没办法啊&amp;%$&amp;^#</p>
+<h2 id="定义api"><a href="#定义api" class="headerlink" title="定义api"></a>定义api</h2><p>首先定义一个.js格式的api文件，这个文件的作用就是与后端的监听端口的网址一一对应</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import service from &quot;../util/request.js&quot;;</span><br><span class="line">export const generatXXXFunction = (data, ext = &#123;&#125;) =&gt; &#123;</span><br><span class="line">  return service(&#123;</span><br><span class="line">    method: &quot;post&quot;,</span><br><span class="line">    url: &quot;/123/456&quot;,</span><br><span class="line">    data,</span><br><span class="line">    ...ext</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里的export类似于public,定义了这些接口之后就可以在组件中调用这些const，进入..&#x2F;util&#x2F;request.js可以发现，这个service方法是对于axios的一层封装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">const service = axios.create(&#123;</span><br><span class="line">    baseURL: import.meta.env.VITE_APP_BASE_API, // url = base url + request url</span><br><span class="line">    // withCredentials: true, // send cookies when cross-domain requests</span><br><span class="line">    withCredentials: true,</span><br><span class="line">    headers: &#123;</span><br><span class="line">        post: &#123; &#x27;Content-Type&#x27;: &#x27;application/json;charset=UTF-8&#x27; &#125;,</span><br><span class="line">        &#x27;Internal-Platform-Code&#x27;: &#x27;XXX&#x27;</span><br><span class="line">    &#125;,</span><br><span class="line">    timeout: 2 * 60 * 1000, // request timeout</span><br><span class="line">&#125;);</span><br><span class="line">service.interceptors.request.use();</span><br><span class="line">service.interceptors.response.use();</span><br><span class="line">export default service;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码是基于axios创建了一个HTTP服务实例（<code>service</code>），用于在React项目中发送HTTP请求。它配置了请求的默认选项（如基础URL、跨域设置、请求头和超时时间）以及请求和响应拦截器。</p>
+<h2 id="function函数"><a href="#function函数" class="headerlink" title="function函数"></a>function函数</h2><p>之后我们就可以定义一个主组件，这个主组件中主要有几个部分构成（我的主组件是整个项目的一个子组件），举个栗子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">function MainComponent(props) &#123;</span><br><span class="line">  const &#123; instanceId &#125; = props;</span><br><span class="line">  const [functionInfo, setFunctionInfo] = useState(&#123;</span><br><span class="line">    instanceId: 0,</span><br><span class="line">    name: &quot;&quot;</span><br><span class="line">    &#125;);</span><br><span class="line">  const handleInfo = (key, val) =&gt; &#123;	// 接受两个参数：key 和 val</span><br><span class="line">    setFunctionInfo((prevState) =&gt; (&#123;	</span><br><span class="line">    //传入一个回调函数接收当前状态作为prevState并由set进行修改。</span><br><span class="line">      ...prevState,	// 复制当前状态对象的所有属性到新对象中</span><br><span class="line">      [key]: val	// 将上面传入的key设置为val实现对特定属性进行更新。</span><br><span class="line">    &#125;));</span><br><span class="line">  useEffect(() =&gt; &#123;</span><br><span class="line">    getNewestInfo(&#123;</span><br><span class="line">    &#125;).then(r=&gt;&#123;</span><br><span class="line">    console.log(r.data.getVo)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, [instanceId]);	//// 当instanceId变化，重新执行该回调函数。</span><br><span class="line">  return &lt;&gt;</span><br><span class="line">  &lt;Box className=&#123;`$&#123;classes.paper&#125;`&#125;&gt;	</span><br><span class="line">  	&lt;div className=&#123;`min-w-[600px]`&#125;&gt;&lt;/div&gt;</span><br><span class="line">  	&lt;SubComponent	// 这是一个子组件</span><br><span class="line">  		instanceId=&#123;instanceId&#125;	</span><br><span class="line">  		onHandleInfo=&#123;handleInfo&#125;</span><br><span class="line">  		// 向其传递了两个props，instanceId 是从父组件传入的实例ID值，而 onHandleInfo 是一个回调函数，当子组件需要处理信息时会被调用。</span><br><span class="line">  	/&gt;</span><br><span class="line">  	请输入Info</span><br><span class="line">  &lt;/Box&gt;</span><br><span class="line">  &lt;/&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>const</code>： 在ES6中，<code>const</code> 是声明常量变量的关键字。在React组件中，通常用来声明组件内部需要使用的<strong>变量、函数或其他引用</strong>。定义了以后可以在useEffect中使用，可以在页面中作为事件触发的功能，或者传给子组件让它们触发。</p>
+<p><code>useState</code>: 让函数组件拥有自己的状态，往往是[组件名,set组件名]格式。当传入值与原值相等的时候不会重新渲染。</p>
+<p><code>useEffect</code>：允许在函数组件中执行副作用操作和订阅数据源，比如进行DOM操作、设置定时器、添加事件监听器、获取或修改全局状态等。<code>useEffect</code> 会返回一个回调函数，作用于清除上一次副作用遗留下来的状态。当<code>useEffect</code>的第二个参数为空时，只会在进入页面是调用一次，当<code>useEffect</code>第二个参数不为空时，第二个参数的改变也会引起调用该<code>useEffect</code></p>
+<p><code>useRef</code>: 声明一个全局的变量。暂时没用到</p>
+<p><code>return&lt;&gt;</code>之后部分：画图。</p>
+<p><code>.then ()</code> 是Promise的一部分，允许在异步操作成功完成时安排代码执行。</p>
+<h2 id="切换历史记录页面功能"><a href="#切换历史记录页面功能" class="headerlink" title="切换历史记录页面功能"></a>切换历史记录页面功能</h2><p>没必要再切换到一个新的页面，直接组件替换就可以解决问题</p>
+<p>我们使用一个LEFT_PART来记录当前应该是输入页面还是历史记录页面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">const LEFT_PART = &#123;</span><br><span class="line">    INPUT_FORM: 0,</span><br><span class="line">    GENERATE_HISTORY_LIST: 1</span><br><span class="line">  &#125;;</span><br><span class="line">  const defaultLeftPartStatus = LEFT_PART.INPUT_FORM;</span><br><span class="line">  const [leftPartStatus, setLeftPartStatus] = useState(defaultLeftPartStatus);</span><br><span class="line">  // 进入页面的时候默认进入到INPUT_FORM页面</span><br><span class="line">  // useState声明一个状态变量</span><br><span class="line">const toHistoryForm = () =&gt; &#123;</span><br><span class="line">    setLeftPartStatus(LEFT_PART.GENERATE_HISTORY_LIST);	// 改变状态</span><br><span class="line">    setGenerateHistoryCurrent(1);</span><br><span class="line">    getHistoryList(&#123;</span><br><span class="line">      instanceId: instanceId,</span><br><span class="line">      pageVo: &#123;</span><br><span class="line">        current: generateHistoryCurrent,</span><br><span class="line">        size: 10</span><br><span class="line">      &#125;	// 传入一个页面，之后还要加上翻页功能</span><br><span class="line">    &#125;).then(r =&gt; &#123;</span><br><span class="line">      console.log(r.data.resultVoList)</span><br><span class="line">      setGenerateHistoryInfo(r.data.resultVoList)</span><br><span class="line">      setGenerateHistoryTotal(r.data.pageVO.total)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;;</span><br><span class="line">  //该const用于转到历史记录组件</span><br><span class="line">const backInputForm = () =&gt; &#123;</span><br><span class="line">    setLeftPartStatus(LEFT_PART.INPUT_FORM);</span><br><span class="line">  &#125;;</span><br><span class="line">  //该const用于转回输入页面</span><br><span class="line">  </span><br><span class="line">  return &lt;&gt;</span><br><span class="line">  &lt;Box className=&#123;`w-[1410px] text-center flex`&#125;&gt;</span><br><span class="line">          &lt;div className=&#123;`min-w-[600px]`&#125;&gt;</span><br><span class="line">            &#123;</span><br><span class="line">              &#123;</span><br><span class="line">                [LEFT_PART.INPUT_FORM]: &lt;HeadTitleComponent</span><br><span class="line">                  words=&#123;&quot;输入&quot;&#125;</span><br><span class="line">                  Icon=&#123;(props) =&gt; &lt;XXXIcon &#123;...props&#125; /&gt;&#125;</span><br><span class="line">                /&gt;,</span><br><span class="line">                [LEFT_PART.GENERATE_HISTORY_LIST]: &lt;HeadTitleComponent</span><br><span class="line">                  className=&#123;`mt-[40px]`&#125;</span><br><span class="line">                  words=&#123;&quot;历史&quot;&#125;</span><br><span class="line">                  Icon=&#123;(props) =&gt; &lt;HistoryIcon &#123;...props&#125; /&gt;&#125;</span><br><span class="line">                  // Icon来自于mui</span><br><span class="line">                /&gt;</span><br><span class="line">              &#125;[leftPartStatus]</span><br><span class="line">            &#125;</span><br><span class="line">          &lt;/div&gt;</span><br><span class="line">  &lt;/Box&gt;</span><br><span class="line">  // ，上述代码画图，下列代码将函数传入子组件中</span><br><span class="line">  &#123;&#123;</span><br><span class="line">    [LEFT_PART.INPUT_FORM]:</span><br><span class="line">     &lt;Box sx=&#123;&#123;ml: &quot;20px&quot;&#125;&#125;&gt;</span><br><span class="line">      &lt;InputComponent</span><br><span class="line">      instanceId=&#123;instanceId&#125;</span><br><span class="line">      functionInstanceInputInfo=&#123;functionInstanceInputInfo&#125;</span><br><span class="line">      onClickGenerate=&#123;generateClick&#125;</span><br><span class="line">      ......</span><br><span class="line">      /&gt;</span><br><span class="line">     &lt;/Box&gt;</span><br><span class="line">     &#125;[leftPartStatus]&#125;</span><br><span class="line">  &#123;&#123;</span><br><span class="line">    [LEFT_PART.GENERATE_HISTORY_LIST]:</span><br><span class="line">     &lt;Box&gt;</span><br><span class="line">      &lt;History</span><br><span class="line">      instanceId=&#123;instanceId&#125;</span><br><span class="line">      onFormItemConfirm=&#123;handleInputInfoConfirm&#125;</span><br><span class="line">      historyInfo=&#123;generateHistoryInfo&#125;</span><br><span class="line">      ......</span><br><span class="line">      /&gt;</span><br><span class="line">     &lt;/Box&gt;</span><br><span class="line">      &#125;[leftPartStatus]&#125;</span><br><span class="line">  &lt;/&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>传入到历史组件后我们定义同名const进行接收</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function History(props) &#123;</span><br><span class="line">    const &#123;</span><br><span class="line">        instanceId,</span><br><span class="line">        onFormItemConfirm,</span><br><span class="line">        historyInfo,</span><br><span class="line">        ......</span><br><span class="line">      &#125; = props;</span><br></pre></td></tr></table></figure>
+
+<h2 id="历史记录翻页功能"><a href="#历史记录翻页功能" class="headerlink" title="历史记录翻页功能"></a>历史记录翻页功能</h2><p>显然翻页功能需要从主组件中传入分页信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">// 默认在第一页</span><br><span class="line">const [generateHistoryCurrent, setGenerateHistoryCurrent] = useState(1);</span><br><span class="line">const handleGenerateHistoryPageFront = () =&gt; &#123;</span><br><span class="line">    if (generateHistoryCurrent === 1) &#123;</span><br><span class="line">      openWarnSnackbar(&quot;当前已是第一页&quot;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      setGenerateHistoryCurrent(generateHistoryCurrent - 1);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">const handleGenerateHistoryPageNext = () =&gt; &#123;</span><br><span class="line">    if (generateHistoryCurrent + 1 &gt; Math.ceil(generateHistoryTotal / 10)) &#123;</span><br><span class="line">      openWarnSnackbar(&quot;当前已是最后一页&quot;);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      setGenerateHistoryCurrent(generateHistoryCurrent + 1);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">useEffect(() =&gt; &#123;</span><br><span class="line">    getHistoryList(&#123;</span><br><span class="line">      instanceId: instanceId,</span><br><span class="line">      pageVo: &#123;</span><br><span class="line">        current: generateHistoryCurrent,</span><br><span class="line">        size: 10</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).then(r =&gt; &#123;</span><br><span class="line">      console.log(r.data.ResultVoList);</span><br><span class="line">      setGenerateHistoryInfo(r.data.ResultVoList);</span><br><span class="line">      setGenerateHistoryTotal(r.data.pageVO.total);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;, [instanceId, generateHistoryCurrent]);</span><br></pre></td></tr></table></figure>
+
+<p>在主组件中定义完翻译功能后传入历史组件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">const handlePageFront = () =&gt; &#123;</span><br><span class="line">    handleGenerateHistoryPageFront();</span><br><span class="line">  &#125;;</span><br><span class="line">const handlePageNext = () =&gt; &#123;</span><br><span class="line">    handleGenerateHistoryPageNext();</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">return &lt;&gt;</span><br><span class="line">    &lt;div style=&#123;&#123;</span><br><span class="line">            display: &quot;flex&quot;,</span><br><span class="line">            alignItems: &quot;center&quot;</span><br><span class="line">          &#125;&#125;&gt;</span><br><span class="line">            &lt;div className=&#123;classes.nextPage&#125; onClick=&#123;handlePageFront&#125; style=&#123;&#123;marginTop:&quot;50px&quot;&#125;&#125;&gt;&amp;lt;上一页&lt;/div&gt;</span><br><span class="line">            &lt;div className=&#123;classes.nextPage&#125; onClick=&#123;handlePageNext&#125; style=&#123;&#123; marginLeft: &quot;650px&quot; ,marginTop:&quot;50px&quot;&#125;&#125;&gt;下一页&amp;gt;&lt;/div&gt;</span><br><span class="line">     &lt;/div&gt;</span><br><span class="line">&lt;/&gt;;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/REACT/" data-id="clszucuxg0003vgwsbwsu5jf7" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-python部署一个paddleOCR服务器" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.707Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通过uvicorn与FastAPI部署一个py服务器"><a href="#通过uvicorn与FastAPI部署一个py服务器" class="headerlink" title="通过uvicorn与FastAPI部署一个py服务器"></a>通过uvicorn与FastAPI部署一个py服务器</h1><h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><p>首先进入虚拟环境，这里就不多说了</p>
+<p>首先安装fastapi</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install fastapi</span><br></pre></td></tr></table></figure>
+
+<p>然后安装uvicorn</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install uvicorn</span><br></pre></td></tr></table></figure>
+
+<p>接着安装python-multipart</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install python-multipart</span><br></pre></td></tr></table></figure>
+
+<p>安装paddleOCR的教程如下，不是这次重点</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</a></p>
+<h2 id="Uvicorn"><a href="#Uvicorn" class="headerlink" title="Uvicorn"></a>Uvicorn</h2><h3 id="什么是-Uvicorn-？"><a href="#什么是-Uvicorn-？" class="headerlink" title="什么是 Uvicorn ？"></a>什么是 Uvicorn ？</h3><p>Uvicorn 是基于 uvloop 和 httptools 构建的非常快速的 ASGI 服务器。</p>
+<h3 id="什么是-uvloop-和-httptools-？"><a href="#什么是-uvloop-和-httptools-？" class="headerlink" title="什么是 uvloop 和 httptools ？"></a>什么是 uvloop 和 httptools ？</h3><p>答： uvloop 用于替换标准库 asyncio 中的事件循环，使用 Cython 实现，它非常快，可以使 asyncio 的速度提高 2-4 倍。asyncio 不用我介绍吧，写异步代码离不开它。</p>
+<p>httptools 是 nodejs HTTP 解析器的 Python 实现。</p>
+<h3 id="什么是-ASGI-服务器？"><a href="#什么是-ASGI-服务器？" class="headerlink" title="什么是 ASGI 服务器？"></a>什么是 ASGI 服务器？</h3><p>答： 异步网关协议接口，一个介于网络协议服务和 Python 应用之间的标准接口，能够处理多种通用的协议类型，包括 HTTP，HTTP2 和 WebSocket。</p>
+<h3 id="请简单介绍下-Uvicorn"><a href="#请简单介绍下-Uvicorn" class="headerlink" title="请简单介绍下 Uvicorn"></a>请简单介绍下 Uvicorn</h3><p>答：目前，Python 仍缺乏异步的网关协议接口，ASGI 的出现填补了这一空白，现在开始，我们能够使用共同的标准为所有的异步框架来实现一些工具，ASGI 帮助 Python 在 Web 框架上和 Node.JS 及 Golang 相竟争，目标是获得高性能的 IO 密集型任务，ASGI 支持 HTTP2 和 WebSockets，WSGI 是不支持的。</p>
+<p>Uvicorn 目前支持 HTTP1.1 和 WebSocket，计划支持 HTTP2。</p>
+<p><strong>以上摘自知乎大佬：</strong></p>
+<p>快如闪电的异步服务器Uvicorn - somenzz的文章 - 知乎<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/115237857">https://zhuanlan.zhihu.com/p/115237857</a></p>
+<h2 id="fastapi"><a href="#fastapi" class="headerlink" title="fastapi"></a>fastapi</h2><p><code>FastAPI</code> 是一个为api提供所有功能的Python类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@app.post(&quot;/api/***/&quot;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>@app.post(&quot;/api/***/&quot;)</code>：这是 FastAPI 中的装饰器，用于定义一个 HTTP POST 方法。它指定了 URL 路径 <code>/api/***/</code>，当客户端向这个 URL 发送 POST 请求时，将执行下面定义的函数。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">async def ###(image: UploadFile):</span><br><span class="line">##############</span><br><span class="line">return ####</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定义了一个异步函数，它接受一个参数 <code>image</code> 类型为 <code>UploadFile</code>。<code>UploadFile</code> 是 FastAPI 提供的一种特殊类型，用于处理上传的文件。</li>
+</ul>
+<h2 id="部署服务器"><a href="#部署服务器" class="headerlink" title="部署服务器"></a>部署服务器</h2><p>代码是旁边的大佬教的所以就不贴完整的了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># app表示创建的启用对象</span><br><span class="line">app = FastAPI()</span><br><span class="line"># PaddleOCR</span><br><span class="line">ocr = PaddleOCR(use_angle_cls=True, lang=&quot;en&quot;)</span><br><span class="line"></span><br><span class="line">@app.post(&quot;/***/&quot;)</span><br><span class="line">async def ###(###):</span><br><span class="line">##############</span><br><span class="line">return ####</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	uvicorn.run(app, host=&#x27;127.0.0.1&#x27;, port=8000)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211092147083.png" alt="image-20231211092147083"></p>
+<p>然后我们访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:8000/***/">http://127.0.0.1:8000/***/</a> 这个网址</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211094012302.png" alt="image-20231211094012302"></p>
+<p>日常翻车</p>
+<p>来定位一下问题所在，首先<code>ping localhost</code>，发现来自::1的回复，说明是ipv6地址，所以localhost没有指向127.0.0.1</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103415961.png" alt="image-20231211103415961"></p>
+<p>使用<code>telnet 127.0.0.1 8000</code>命令查看端口使用情况</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211102959555.png" alt="image-20231211102959555"></p>
+<p><strong>以下操作参考自CSDN</strong>：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/Dhe6C%E5%A4%A7%E4%BD%AC%E7%9A%84%E6%96%87%E7%AB%A0">http://t.csdnimg.cn/Dhe6C大佬的文章</a></p>
+<p>输入命令<code>netsh interface ipv6 show prefixpolicies</code></p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211103744387.png" alt="image-20231211103744387"></p>
+<p>现在需要设置使::&#x2F;96、::ffff:0:0&#x2F;96的优先级高于::&#x2F;0和::1&#x2F;128，在命令行中依次设置优先级：</p>
+<p>netsh int ipv6 set prefix ::&#x2F;96 50 0<br>netsh int ipv6 set prefix ::ffff:0:0&#x2F;96 40 1<br>netsh int ipv6 set prefix 2002::&#x2F;16 35 2<br>netsh int ipv6 set prefix 2001::&#x2F;32 30 3<br>netsh int ipv6 set prefix ::1&#x2F;128 10 4<br>netsh int ipv6 set prefix ::&#x2F;0 5 5<br>netsh int ipv6 set prefix fc00::&#x2F;7 3 13<br>netsh int ipv6 set prefix fec0::&#x2F;10 1 11<br>netsh int ipv6 set prefix 3ffe::&#x2F;16 1 12<br>再次输入命令<code>netsh interface ipv6 show prefixpolicies</code></p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110030249.png" alt="image-20231211110030249"></p>
+<p><code>ping localhost</code>结果</p>
+<p><img src="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20231211110212396.png" alt="image-20231211110212396"></p>
+<p>先写bug再修bug，嗯，又是充实的一天呢。</p>
+<h2 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h2><p>服务器部署完了就该发请求了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">url = &quot;http://127.0.0.1:8000/***&quot;</span><br><span class="line">headers = &#123;&#125;</span><br><span class="line">#	定义了一个空字典 headers，用于存放请求头信息。</span><br><span class="line">image_path = &quot; &quot;</span><br><span class="line">with open(image_path, &#x27;rb&#x27;) as image_file:</span><br><span class="line">#	&#x27;rb&#x27; 二进制模式读取</span><br><span class="line">#	as image_file 将文件对象存储在 image_file 变量中。</span><br><span class="line">    files = &#123;&#x27;image&#x27;: (&#x27;image.png&#x27;, image_file, &#x27;image/png&#x27;)&#125;</span><br><span class="line">    #	创建一个字典 files，它包含一个键值对，</span><br><span class="line">    #	键为 &#x27;image&#x27;，值为一个元组 (filename, fileobj, content_type)。</span><br><span class="line">    #	其中 filename 是上传图片的文件名（可以自定义），</span><br><span class="line">    #	fileobj 是从上一步中打开的文件对象，</span><br><span class="line">    #	content_type 是内容类型（这里是 &#x27;image/png&#x27;，表示这是一个 PNG 图片）。</span><br><span class="line">    response = requests.post(url, files=files, headers=headers)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以获得一个<code>&lt;class &#39;requests.models.Response&#39;&gt;</code>的返回值</p>
+<p>通过<code>response.text</code>获得原文，这里顺手介绍一下<code>requests.models.Response</code>常用熟悉</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">response.text  # 响应返回的文本（字符串）</span><br><span class="line">response.content # 响应返回的内容（二进制），一般用来爬取视频</span><br><span class="line">response.status_code # 响应的状态码</span><br><span class="line">response.url # 获取请求连接地址</span><br><span class="line">response.cookies # 获取返回的cookies信息</span><br><span class="line">response.cookies.get_dict() # 获取返回的cookies信息</span><br><span class="line">response.request # 获取请求方式</span><br><span class="line">response.json()  # 将结果进行反序列化</span><br></pre></td></tr></table></figure>
+
+<p>获得请求后PaddleOCR会返回一个有非常多[]的列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># [[[[[255.0,52.0],[348.0,54.0],[348.0,67.0],[255.0,66.0]],[&quot;xxx&quot;,0.975827693939209]],[[[181.0,71.0],[189.0,71.0],[189.0,80.0],[181.0,80.0]],[&quot;xxx&quot;,0.9987519979476929]],[[[415.0,70.0],[423.0,70.0],[423.0,80.0],[415.0,80.0]],[&quot;xxx&quot;,0.9969109892845154]]</span><br><span class="line"># 大概是这样，太长我就不截全了，解释一下构成</span><br><span class="line"># 第一个框内容 data[0][0][0][0]</span><br><span class="line"># data[0][0][0][0]左上角坐标(x,y)</span><br><span class="line"># data[0][0][0][2]右下角坐标(x,y)</span><br><span class="line"># data[0][0][1][0]文本内容</span><br><span class="line"># data[0][0][1][1]文本置信度</span><br><span class="line"># 第二个框内容 data[0][1][0][0]</span><br><span class="line"># 不存在的东西 data[1][][][]等</span><br><span class="line"># 根据需求取用即可</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-id="clszucuxh0006vgws7nxy4kzt" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-MyBatis-plus使用指北" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.705Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="MyBatis-plus使用指北"><a href="#MyBatis-plus使用指北" class="headerlink" title="MyBatis-plus使用指北"></a>MyBatis-plus使用指北</h1><p>今天参加新的项目，打开mapper发现除了多表查询其他所有的mapper都是空的，因为项目用的是MyBatis-plus，嗯，又双叒叕触及了知识的盲区。</p>
+<p>这里放上官网网址<a target="_blank" rel="noopener" href="https://baomidou.com/">MyBatis-Plus (baomidou.com)</a></p>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ul>
+<li>无侵入：只做增强不做改变，引入它不会对现有工程产生影响，如丝般顺滑</li>
+<li>损耗小：启动即会自动注入基本 CURD，性能基本无损耗，直接面向对象操作</li>
+<li>强大的 CRUD 操作：内置通用 Mapper、通用 Service，仅仅通过少量配置即可实现单表大部分 CRUD 操作，更有强大的条件构造器，满足各类使用需求，以后简单的CRUD操作，不用自己编写了 ！</li>
+<li>支持 Lambda 形式调用：通过 Lambda 表达式，方便的编写各类查询条件，无需再担心字段写错</li>
+<li>支持主键自动生成：支持多达 4 种主键策略（内含分布式唯一 ID 生成器 - Sequence），可自由配置，完美解决主键问题</li>
+<li>支持 ActiveRecord 模式：支持 ActiveRecord 形式调用，实体类只需继承 Model 类即可进行强大的 CRUD 操作</li>
+<li>支持自定义全局通用操作：支持全局通用方法注入（ Write once, use anywhere ）</li>
+<li>内置代码生成器：采用代码或者 Maven 插件可快速生成 Mapper 、 Model 、 Service 、 Controller 层代码，支持模板引擎，更有超多自定义配置等您来使用（自动帮你生成代码）</li>
+<li>内置分页插件：基于 MyBatis 物理分页，开发者无需关心具体操作，配置好插件之后，写分页等同于普通 List 查询</li>
+<li>分页插件支持多种数据库：支持 MySQL、MariaDB、Oracle、DB2、H2、HSQL、SQLite、Postgre、SQLServer 等多种数据库</li>
+<li>内置性能分析插件：可输出 Sql 语句以及其执行时间，建议开发测试时启用该功能，能快速揪出慢查询</li>
+<li>内置全局拦截插件：提供全表 delete 、 update 操作智能分析阻断，也可自定义拦截规则，预防误操作</li>
+</ul>
+<p>首先添加MyBatis-Plus依赖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.3.1.tmp&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其他东西就不说了，还是SSM那一套</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>在 <code>application.yml</code> 配置文件中添加 H2 数据库的相关配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># DataSource Config</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">driver-class-name:</span> <span class="string">org.h2.Driver</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">test</span></span><br><span class="line">  <span class="attr">sql:</span></span><br><span class="line">    <span class="attr">init:</span></span><br><span class="line">      <span class="attr">schema-locations:</span> <span class="string">classpath:db/schema-h2.sql</span></span><br><span class="line">      <span class="attr">data-locations:</span> <span class="string">classpath:db/data-h2.sql</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="在-Spring-Boot-启动类中添加-MapperScan-注解，扫描-Mapper-文件夹："><a href="#在-Spring-Boot-启动类中添加-MapperScan-注解，扫描-Mapper-文件夹：" class="headerlink" title="在 Spring Boot 启动类中添加 @MapperScan 注解，扫描 Mapper 文件夹："></a>在 Spring Boot 启动类中添加 <code>@MapperScan</code> 注解，扫描 Mapper 文件夹：</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 扫描mapper包下的所有接口</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@MapperScan(&quot;com.baomidou.mybatisplus.samples.quickstart.mapper&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(Application.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写实体类"><a href="#编写实体类" class="headerlink" title="编写实体类"></a>编写实体类</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Data</span><br><span class="line">@AllArgsConstructor</span><br><span class="line">@NoArgsConstructor</span><br><span class="line">public class User &#123;</span><br><span class="line">    private Long id;</span><br><span class="line">    private String name;</span><br><span class="line">    private Integer age;</span><br><span class="line">    private String email;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写实体类对应的mapper接口"><a href="#编写实体类对应的mapper接口" class="headerlink" title="编写实体类对应的mapper接口"></a>编写实体类对应的mapper接口</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import com.baomidou.mybatisplus.mapper.BaseMapper;</span><br><span class="line">import com.wsk.pojo.User;</span><br><span class="line">import org.springframework.stereotype.Repository;</span><br><span class="line">//在对应的接口上面继承一个基本的接口 BaseMapper</span><br><span class="line">@Repository//代表持久层</span><br><span class="line">public interface UserMapper extends BaseMapper&lt;User&gt; &#123;</span><br><span class="line">    //所有CRUD操作都编写完成了，不用像以前一样配置一大堆文件</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="进行Test测试"><a href="#进行Test测试" class="headerlink" title="进行Test测试"></a>进行Test测试</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@SpringBootTest</span><br><span class="line">class MybatisPlusApplicationTests &#123;</span><br><span class="line">    //继承了BaseMapper，所有的方法都来自父类，我们也可以编写自己的扩展方法！</span><br><span class="line">    @Autowired</span><br><span class="line">    private UserMapper userMapper;</span><br><span class="line">    @Test</span><br><span class="line">    void contextLoads() &#123;</span><br><span class="line">        //参数是一个wrapper ，条件构造器，这里我们先不用 null</span><br><span class="line">        List&lt;User&gt; userList = userMapper.selectList(null);//查询全部的用户</span><br><span class="line">        userList.forEach(System.out::println);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置日志"><a href="#配置日志" class="headerlink" title="配置日志"></a>配置日志</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#配置日志  log-impl:日志实现</span><br><span class="line">mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl</span><br></pre></td></tr></table></figure>
+
+<h4 id="CRUD"><a href="#CRUD" class="headerlink" title="CRUD"></a>CRUD</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//查询所有</span><br><span class="line">userService.list();</span><br><span class="line">//查询数量</span><br><span class="line">userService.count();</span><br><span class="line">//根据ID查list集合</span><br><span class="line">userService.listByIds());</span><br><span class="line">//根据ID删除</span><br><span class="line">userService.removeById();</span><br><span class="line">userService.removeByIds();</span><br><span class="line">//修改</span><br><span class="line">userService.update();</span><br><span class="line">//新增</span><br><span class="line">userService.save();</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试插入"><a href="#测试插入" class="headerlink" title="测试插入"></a>测试插入</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@Test//测试插入</span><br><span class="line">public void insertTest()&#123;</span><br><span class="line">    User user = new User();</span><br><span class="line">    user.setName(&quot;wsk&quot;);</span><br><span class="line">    user.setAge(18);</span><br><span class="line">    user.setEmail(&quot;2803708553@qq.com&quot;);</span><br><span class="line">    Integer result = userMapper.insert(user); //会帮我们自动生成id</span><br><span class="line">    System.out.println(result); //受影响的行数</span><br><span class="line">    System.out.println(user); //通过日志发现id会自动回填</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试更新"><a href="#测试更新" class="headerlink" title="测试更新"></a>测试更新</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Test//测试更新</span><br><span class="line">public void updateTest()&#123;</span><br><span class="line">    User user = new User();</span><br><span class="line">    user.setId(2L);//怎么改id？？</span><br><span class="line">    //通过条件自动拼接动态Sql</span><br><span class="line">    user.setName(&quot;root&quot;);</span><br><span class="line">    user.setAge(12);</span><br><span class="line">    user.setEmail(&quot;root@qq.com&quot;);</span><br><span class="line">    int i = userMapper.updateById(user);//updateById，但是参数是个user</span><br><span class="line">    System.out.println(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="自动填充"><a href="#自动填充" class="headerlink" title="自动填充"></a>自动填充</h4><p>创建时间、更改时间！ 这些操作一般都是自动化完成，我们不希望手动更新</p>
+<p>在表中增加字段：create_time,update_time</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//字段  字段添加填充内容</span><br><span class="line">@TableField(fill = FieldFill.INSERT)//value = (&quot;create_time&quot;),</span><br><span class="line">private Date createTime;</span><br><span class="line">@TableField(fill = FieldFill.INSERT_UPDATE)</span><br><span class="line">private Date updateTime;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编写处理器来处理这个注解"><a href="#编写处理器来处理这个注解" class="headerlink" title="编写处理器来处理这个注解"></a>编写处理器来处理这个注解</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j//日志</span><br><span class="line">@Component//丢到springboot里   一定不要忘记把处理器加到Ioc容器中!</span><br><span class="line">public class MyMetaObjectHandler extends MetaObjectHandler &#123;//extends??</span><br><span class="line">    @Override//插入时的填充策略</span><br><span class="line">    public void insertFill(MetaObject metaObject) &#123;</span><br><span class="line">        log.info(&quot;==start insert ······==&quot;);</span><br><span class="line">        //setFieldValByName(java.lang.String fieldName, java.lang.Object fieldVal, org.apache.ibatis.reflection.MetaObject metaObject)</span><br><span class="line">        this.setFieldValByName(&quot;createTIme&quot;,new Date(),metaObject);</span><br><span class="line">        this.setFieldValByName(&quot;updateTime&quot;,new Date(),metaObject);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override//更新时的填充策略</span><br><span class="line">    public void updateFill(MetaObject metaObject) &#123;</span><br><span class="line">        log.info(&quot;==start update ······==&quot;);</span><br><span class="line">        this.setFieldValByName(&quot;updateTime&quot;,new Date(),metaObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试插入-更新，观察时间"><a href="#测试插入-更新，观察时间" class="headerlink" title="测试插入&#x2F;更新，观察时间"></a>测试插入&#x2F;更新，观察时间</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Test//测试插入</span><br><span class="line">public void insertTest()&#123;</span><br><span class="line">    User user = new User();</span><br><span class="line">    user.setName(&quot;live&quot;);</span><br><span class="line">    user.setAge(22);</span><br><span class="line">    user.setEmail(&quot;1314@qq.com&quot;);</span><br><span class="line">    Integer result = userMapper.insert(user); //会帮我们自动生成id</span><br><span class="line">    System.out.println(result); //受影响的行数</span><br><span class="line">    System.out.println(user); //通过日志发现id会自动回填</span><br><span class="line">&#125;</span><br><span class="line">@Test//测试更新</span><br><span class="line">public void updateTest()&#123;</span><br><span class="line">    User user = new User();</span><br><span class="line">    user.setId(1359495921613004803L);</span><br><span class="line">    user.setName(&quot;test3&quot;);</span><br><span class="line">    user.setAge(18); //通过条件自动拼接动态Sql</span><br><span class="line">    user.setEmail(&quot;test3@qq.com&quot;);</span><br><span class="line">    int i = userMapper.updateById(user);//updateById，但是参数是个user</span><br><span class="line">    System.out.println(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用MyBatis-Plus的通用Service"><a href="#使用MyBatis-Plus的通用Service" class="headerlink" title="使用MyBatis-Plus的通用Service"></a>使用MyBatis-Plus的通用Service</h4><p>首先我们需要写一个Service，然后继承MyBatis-Plus的通用Service:<code>IService&lt;T&gt;</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface UserService extends IService&lt;User&gt; &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再写一个ServiceImpl并且继承MyBatis-Plus的<code>ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;</code>，当然还要实现我们写的Service。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@Service</span><br><span class="line">public class UserServiceImpl extends ServiceImpl&lt;UserMapper , User&gt; implements UserService &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ServiceImpl&lt;M extends BaseMapper&lt;T&gt;, T&gt;</code>这个类实现了通用Service的CRUD方法</p>
+<p>参考链接：<a target="_blank" rel="noopener" href="http://t.csdnimg.cn/U4GDB">http://t.csdnimg.cn/U4GDB</a> <a target="_blank" rel="noopener" href="https://kaven.blog.csdn.net/">ITKaven</a>的CSDN博客</p>
+<p><a target="_blank" rel="noopener" href="https://www.kuangstudy.com/bbs/1366329082232467457">【狂神说Java】MyBatisPlus学习笔记-KuangStudy-文章</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/" data-id="clszucuxf0002vgws7yll904l" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-Lambda在Mybatis-plus中的使用" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.704Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Lambda在Mybatis-plus中的使用"><a href="#Lambda在Mybatis-plus中的使用" class="headerlink" title="Lambda在Mybatis-plus中的使用"></a>Lambda在Mybatis-plus中的使用</h1><p>Mybatis-plus中直接使用lambda进行CRUD操作非常地便捷，对于相关操作进行记录。</p>
+<h3 id="LambdaQueryWrapper"><a href="#LambdaQueryWrapper" class="headerlink" title="LambdaQueryWrapper"></a>LambdaQueryWrapper</h3><p>1.假设需求是获取历史记录，输入一个Id获取这个Id所有的历史记录的list</p>
+<p>由于是工作中的代码，假装我在做经典的学生管理系统</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 创建userLambdaQueryWrapper</span><br><span class="line">LambdaQueryWrapper&lt;User&gt; userLambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();</span><br><span class="line">// 通过wrapper中的eq方法对request与entity的Id字段进行匹配，获得相关的数据库词条</span><br><span class="line">// 这里的User是一个由Mybatis-plus生成的与数据库表字段一一对应的一个entity</span><br><span class="line">userLambdaQueryWrapper.eq(User::getId, request.getId());</span><br><span class="line">// 这里的orderBy是由AbstractWrapper提供的排序方法，这里的作用是根据createtime排序</span><br><span class="line">// orderBy(boolean condition, boolean isAsc, R column)</span><br><span class="line">UserLambdaQueryWrapper.orderBy(true, false, User::getCreateTime);</span><br><span class="line">// page东西多下面单独开一栏</span><br><span class="line">Page&lt;User&gt; page = new Page&lt;&gt;(getUserListRequest.getPageVO().getCurrent(),getUserListRequest.getPageVO().getSize());</span><br><span class="line">// 使用分页对象和查询条件调用服务方法进行分页查询</span><br><span class="line">Page&lt;User&gt; userPage = userService.page(page, userLambdaQueryWrapper);</span><br></pre></td></tr></table></figure>
+
+<p>Page是由Mybatis-plus提供的一个分页的类，构造器最多四个参数，有5种重载方法我的代码中采用了2参的构造方法，也就是Page(long current, long size)&#96;,分别设定当前页以及每页的大小</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public Page(long current, long size, long total, boolean searchCount)</span><br></pre></td></tr></table></figure>
+
+<p>也就是说在我的代码中，我设定了一个VO用来记录<code>Page</code>相关的内容，于是通过下面的userService中的page方法(方法继承自<code>Iservice.class</code>)，获取指定页面的数据库词条，这里的指定页面到了数据库中也就是第$(current-1) \times size$到$current \times size$条数据，那么到这一步已经完成了查询。</p>
+<p>2.假设现在有一个新的需求，那就是有一个评语表，这个表是一个和主表互相之间独立的，但是双方通过一个外键（逻辑上的，数据库没有关联）互相关联，应该如何把每个User的评语提取出来并且加入到User类里？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">List&lt;UserCommentVo&gt; UserCommentVos = userPage.getRecords().stream()</span><br><span class="line">				// 设置过滤器</span><br><span class="line">                .filter(vo -&gt; vo.getGenerateStatus() == 2)</span><br><span class="line">                // UserLALALA随意命名</span><br><span class="line">                .map(UserLALALA -&gt; &#123;</span><br><span class="line">                    UserCommentVo vo = new UserCommentVo();</span><br><span class="line">                    BeanUtils.copyProperties(UserLALALA, vo);</span><br><span class="line">                    vo.setCreateTime(new Date());</span><br><span class="line">                    Integer userId = UserLALALA.getId();               vo.setComment(userCommentService.getCommentById(userId));</span><br><span class="line">                    return vo;</span><br><span class="line">                &#125;)</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">                // 遍历过滤后的List</span><br><span class="line">                UserCommentVos.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p><code>List&lt;UserCommentVo&gt; UserCommentVos</code>因为这玩意儿是要发给前端的，所以用vo命名</p>
+<p><code>userPage.getRecords()</code>在上面指定page的页面以及大小后，获取该页面的内容</p>
+<p><code>.stream().filter(...).map(...)</code> Java8功能，表示“从集合中获取流，根据特定条件过滤出部分元素，然后对这些元素应用某种转换规则”的数据处理流程。</p>
+<p><code>.stream()</code>方法将一个集合或数组转换成一个流（Stream）</p>
+<p><code>.filter(Predicate&lt;T&gt; predicate)</code>定义了一个条件，用于从原始流中筛选出满足该条件的元素。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; words = Arrays.asList(&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;, &quot;date&quot;);</span><br><span class="line">List&lt;String&gt; filteredWords = words.stream()</span><br><span class="line">                                 .filter(word -&gt; word.startsWith(&quot;c&quot;))</span><br><span class="line">                                 .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<p><code>.map(Function&lt;T, R&gt; mapper)</code>是一个中间操作，它接受一个函数式接口Function作为参数。</p>
+<p>Function接口的<code>apply(T t)</code>方法定义了如何将流中的每个元素转换为另一种类型的结果。</p>
+<p>map操作会应用于流中的每一个元素，生成一个新的流，其中包含的是原元素经过转换后的新值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5);</span><br><span class="line">List&lt;Double&gt; squaredNumbers = numbers.stream()</span><br><span class="line">                                    .map(number -&gt; Math.pow(number, 2)) // 将每个数平方</span><br><span class="line">                                    .collect(Collectors.toList());</span><br></pre></td></tr></table></figure>
+
+<h3 id="LambdaUpdateWrapper"><a href="#LambdaUpdateWrapper" class="headerlink" title="LambdaUpdateWrapper"></a>LambdaUpdateWrapper</h3><p>有了之前Query的经验，其实这里的Update就是照葫芦画瓢了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void setGenerateStatusById(Integer Id)&#123;</span><br><span class="line">    LambdaUpdateWrapper&lt;User&gt; wrapper = new LambdaUpdateWrapper&lt;&gt;();</span><br><span class="line">    // 先根据传入的Id匹配到User表中的Id</span><br><span class="line">    wrapper.eq(User::getId,Id);</span><br><span class="line">    // 将这个Id的generatestatus设置为2</span><br><span class="line">    wrapper.set(User::getGenerateStatus,2);</span><br><span class="line">    // 使传入的wrapper生成并执行对应的SQL UPDATE语句</span><br><span class="line">    // 从而完成对User表中特定记录的状态更新。</span><br><span class="line">    this.update(wrapper);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/Lambda%E5%9C%A8Mybatis-plus%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/" data-id="clszucuxg0004vgws6kc9dadv" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-JavaScript基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/JavaScript%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.703Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="JS基础笔记"><a href="#JS基础笔记" class="headerlink" title="JS基础笔记"></a>JS基础笔记</h1><p><del>我是个后端，你们要干什么！哇的一声扑向……</del> 对不起，我开玩笑的，马上学马上学orz</p>
+<h2 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">&lt;title&gt;菜鸟教程(runoob.com)&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>HTML5文档类型声明，并开始HTML文档结构。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt; </span><br><span class="line">document.write(&quot;&lt;h1&gt;这是一个标题&lt;/h1&gt;&quot;);</span><br><span class="line">document.write(&quot;&lt;p&gt;这是一个段落。&lt;/p&gt;&quot;);</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;p&gt;</span><br><span class="line">您只能在 HTML 输出流中使用 &lt;strong&gt;document.write&lt;/strong&gt;。</span><br><span class="line">如果您在文档已加载后使用它（比如在函数中），会覆盖整个文档。</span><br><span class="line">&lt;/p&gt;</span><br></pre></td></tr></table></figure>
+
+<script> 用于嵌入或链接外部脚本文件，不是用来显示可见内容的，而是提供页面功能和逻辑。
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;button type=&quot;button&quot; onclick=&quot;alert(&#x27;欢迎!&#x27;)&quot;&gt;点我!&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+生成一个按钮，按钮上写着"点我!"，点击后会弹出"欢迎!"
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;p id=&quot;demo&quot;&gt;</span><br><span class="line">点击前</span><br><span class="line">&lt;/p&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">function myFunction()</span><br><span class="line">&#123;</span><br><span class="line">	x=document.getElementById(&quot;demo&quot;);  // 找到元素</span><br><span class="line">	x.style.color=&quot;#ff0000&quot;;	// 改变样式</span><br><span class="line">	x.innerHTML=&quot;点击后&quot;;    // 改变内容</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;button type=&quot;button&quot; onclick=&quot;myFunction()&quot;&gt;点击这里&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+点击前显示黑色“点击前”，点击后显示红色“点击后”
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">function changeImage()</span><br><span class="line">&#123;</span><br><span class="line">	element=document.getElementById(&#x27;myimage&#x27;)</span><br><span class="line">	if (element.src.match(&quot;bulbon&quot;))</span><br><span class="line">	&#123;</span><br><span class="line">		element.src=&quot;/images/pic_bulboff.gif&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">	else</span><br><span class="line">	&#123;</span><br><span class="line">		element.src=&quot;/images/pic_bulbon.gif&quot;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;img id=&quot;myimage&quot; onclick=&quot;changeImage()&quot; src=&quot;/images/pic_bulboff.gif&quot; width=&quot;100&quot; height=&quot;180&quot;&gt;</span><br><span class="line">&lt;p&gt;点击灯泡就可以打开或关闭这盏灯&lt;/p&gt;</span><br></pre></td></tr></table></figure>
+
+`function changeImage()`作用是改变id为'myimage'的图片元素的src属性。检查当前图片的src地址是否包含字符串"bulbon"。如果包含，则将图片源改为"/images/pic_bulboff.gif"
+
+`img`一个图片元素，初始状态下显示的是熄灭的灯泡图片。该图片元素上绑定了一个`onclick`事件，当用户点击这个图片时，就会触发并执行`changeImage`函数
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;input id=&quot;demo&quot; type=&quot;text&quot;&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">function myFunction()</span><br><span class="line">&#123;</span><br><span class="line">	var x=document.getElementById(&quot;demo&quot;).value;</span><br><span class="line">	if(isNaN(x)||x.replace(/(^\s*)|(\s*$)/g,&quot;&quot;)==&quot;&quot;)&#123;</span><br><span class="line">		alert(&quot;不是数字&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">&lt;button type=&quot;button&quot; onclick=&quot;myFunction()&quot;&gt;点击这里&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+`input`定义一个文本输入框`（type="text"）`, 其id为`'demo'`
+
+- `isNaN(x)`：检查变量x是否能转换为数字，如果不能，则说明输入的不是数字。
+- `x.replace(/(^\s*)|(\s*$)/g, "") == ""`：这是一个正则表达式，用于去除字符串两端的空白字符（包括空格、制表符等）。如果去除后字符串为空，则说明用户没有输入任何实际内容。
+
+若以上任一条件满足（即输入的不是数字或未输入内容），则弹出`alert`对话框，显示信息"不是数字"。
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">document.write(Date());</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">// 输出 Fri Jan 26 2024 10:48:41 GMT+0800 (中国标准时间)</span><br></pre></td></tr></table></figure>
+
+
+
+## 浏览器使用
+
+F12->源代码->片段->新片段
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">console.log(&quot;runoob-1&quot;)</span><br><span class="line">console.log(&quot;runoob-2&quot;)</span><br></pre></td></tr></table></figure>
+
+右键运行
+
+![image-20240126104537234](JavaScript基础/image-20240126104537234.png)
+
+控制台get到输出
+
+![image-20240126104555774](JavaScript基础/image-20240126104555774.png)
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">a = 5;</span><br><span class="line">b = 6;</span><br><span class="line">c = a + b;</span><br><span class="line">console.log(c);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+向调试窗口的控制台中输出数据
+
+**定义数组、对象以及函数**
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 空数组的创建</span><br><span class="line">var myArray = []; // 或 new Array()</span><br><span class="line">// 带初始值的数组创建</span><br><span class="line">var numbers = [1, 2, 3, 4, 5]; // 创建包含整数的数组</span><br><span class="line">var fruits = [&#x27;apple&#x27;, &#x27;banana&#x27;, &#x27;cherry&#x27;]; // 创建包含字符串的数组</span><br><span class="line">// 使用Array构造函数创建数组（不推荐，除非需要特定参数）</span><br><span class="line">var arrWithLength = new Array(3); // 创建长度为3但没有元素的数组</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 对象字面量语法</span><br><span class="line">var person = &#123;</span><br><span class="line">  name: &#x27;John Doe&#x27;,</span><br><span class="line">  age: 30,</span><br><span class="line">  city: &#x27;New York&#x27;,</span><br><span class="line">  sayHello: function() &#123;</span><br><span class="line">    console.log(&#x27;Hello, I am &#x27; + this.name);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line">// 构造函数创建对象</span><br><span class="line">function Person(name, age, city) &#123;</span><br><span class="line">  this.name = name;</span><br><span class="line">  this.age = age;</span><br><span class="line">  this.city = city;</span><br><span class="line">&#125;</span><br><span class="line">var anotherPerson = new Person(&#x27;Jane Doe&#x27;, 28, &#x27;Los Angeles&#x27;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 函数声明</span><br><span class="line">function add(a, b) &#123;</span><br><span class="line">  return a + b;</span><br><span class="line">&#125;</span><br><span class="line">// 函数表达式</span><br><span class="line">var subtract = function(a, b) &#123;</span><br><span class="line">  return a - b;</span><br><span class="line">&#125;;</span><br><span class="line">// 箭头函数语法</span><br><span class="line">var multiply = (a, b) =&gt; a * b;</span><br><span class="line">// 匿名函数并赋值给变量</span><br><span class="line">var divide = function divide(a, b) &#123;</span><br><span class="line">  if (b === 0) throw new Error(&#x27;Cannot divide by zero!&#x27;);</span><br><span class="line">  return a / b;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+~~茴香豆的四种写法~~
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">var x=5;</span><br><span class="line">var y=6;</span><br><span class="line">var z=x+y;</span><br><span class="line">document.write(x + &quot;&lt;br&gt;&quot;);</span><br><span class="line">document.write(y + &quot;&lt;br&gt;&quot;);</span><br><span class="line">document.write(z + &quot;&lt;br&gt;&quot;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+JS中变量的使用方式，\<br>表示换行符
+
+![img](JavaScript基础/Javascript-DataType.png)
+
+JavaScript 只有一种数字类型。数字可以带小数点，也可以不带
+
+极大或极小的数字可以通过科学（指数）计数法来书写
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var y=123e5;      // 12300000</span><br><span class="line">var z=123e-5;     // 0.00123</span><br></pre></td></tr></table></figure>
+
+布尔boolean类
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var x=true;</span><br><span class="line">var y=false;</span><br></pre></td></tr></table></figure>
+
+对象查值
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">var person=</span><br><span class="line">&#123;</span><br><span class="line">	firstname : &quot;John&quot;,</span><br><span class="line">	lastname  : &quot;Doe&quot;,</span><br><span class="line">	id        :  5566</span><br><span class="line">&#125;;</span><br><span class="line">document.write(person.lastname + &quot;&lt;br&gt;&quot;);</span><br><span class="line">document.write(person[&quot;lastname&quot;] + &quot;&lt;br&gt;&quot;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+调用带参数的函数
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;button onclick=&quot;myFunction(&#x27;Harry Potter&#x27;,&#x27;Wizard&#x27;)&quot;&gt;点击这里&lt;/button&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">function myFunction(name,job)&#123;</span><br><span class="line">	alert(&quot;Welcome &quot; + name + &quot;, the &quot; + job);</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+带有返回值的函数
+
+<p>本例调用的函数会执行一个计算，然后返回结果：</p>
+<p id="demo"></p>
+<script>
+function myFunction(a,b){
+    return a*b;
+}
+document.getElementById("demo").innerHTML=myFunction(4,3);
+</script>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;本例调用的函数会执行一个计算，然后返回结果：&lt;/p&gt;</span><br><span class="line">&lt;p id=&quot;demo&quot;&gt;&lt;/p&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">function myFunction(a,b)&#123;</span><br><span class="line">	return a*b;</span><br><span class="line">&#125;</span><br><span class="line">document.getElementById(&quot;demo&quot;).innerHTML=myFunction(4,3);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>事件</strong>：HTML 事件是发生在 HTML 元素上的事情，可以是浏览器行为，也可以是用户行为。</p>
+<p>以下是 HTML 事件的实例：</p>
+<ul>
+<li><p>HTML 页面完成加载</p>
+</li>
+<li><p>HTML input 字段改变时</p>
+</li>
+<li><p>HTML 按钮被点击</p>
+</li>
+</ul>
+<p>模板字面量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">const name = &#x27;Runoob&#x27;;</span><br><span class="line">const age = 30;</span><br><span class="line">const message = `My name is $&#123;name&#125; and I&#x27;m $&#123;age&#125; years old.`;</span><br><span class="line">document.getElementById(&quot;demo&quot;).innerHTML = message;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">let header = &quot;&quot;;</span><br><span class="line">let tags = [&quot;RUNOOB&quot;, &quot;GOOGLE&quot;, &quot;TAOBAO&quot;];</span><br><span class="line"></span><br><span class="line">let html = `&lt;h2&gt;$&#123;header&#125;&lt;/h2&gt;&lt;ul&gt;`;</span><br><span class="line">for (const x of tags) &#123;</span><br><span class="line">  html += `&lt;li&gt;$&#123;x&#125;&lt;/li&gt;`;</span><br><span class="line">&#125;</span><br><span class="line">html += `&lt;/ul&gt;`;</span><br><span class="line">document.getElementById(&quot;demo&quot;).innerHTML = html;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/02/24/JavaScript%E5%9F%BA%E7%A1%80/image-20240126170511958.png" alt="image-20240126170511958"></p>
+<table>
+<thead>
+<tr>
+<th align="left">运算符</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">&#x3D;&#x3D;</td>
+<td align="left">等于</td>
+</tr>
+<tr>
+<td align="left">&#x3D;&#x3D;&#x3D;</td>
+<td align="left">绝对等于（值和类型均相等）</td>
+</tr>
+<tr>
+<td align="left">!&#x3D;</td>
+<td align="left">不等于</td>
+</tr>
+<tr>
+<td align="left">!&#x3D;&#x3D;</td>
+<td align="left">不绝对等于（值和类型有一个不相等，或两个都不相等）</td>
+</tr>
+<tr>
+<td align="left">&gt;</td>
+<td align="left">大于</td>
+</tr>
+</tbody></table>
+<p><strong>条件运算符</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;点击按钮检测年龄。&lt;/p&gt;</span><br><span class="line">年龄:&lt;input id=&quot;age&quot; value=&quot;18&quot; /&gt;</span><br><span class="line">&lt;p&gt;是否达到投票年龄?&lt;/p&gt;</span><br><span class="line">&lt;button onclick=&quot;myFunction()&quot;&gt;点击按钮&lt;/button&gt;</span><br><span class="line">&lt;p id=&quot;demo&quot;&gt;&lt;/p&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">function myFunction()</span><br><span class="line">&#123;</span><br><span class="line">	var age,voteable;</span><br><span class="line">	age=document.getElementById(&quot;age&quot;).value;</span><br><span class="line">	voteable=(age&lt;18)?&quot;年龄太小&quot;:&quot;年龄已达到&quot;;</span><br><span class="line">	document.getElementById(&quot;demo&quot;).innerHTML=voteable;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>if-else,while, switch等语句与java一模一样</p>
+<p><strong>变量提升</strong></p>
+<p>JavaScript 中，函数及变量的声明都将被提升到函数的最顶部。</p>
+<p>JavaScript 中，变量可以在使用后声明，也就是变量可以<strong>先使用再声明</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">x = 5; // 变量 x 设置为 5</span><br><span class="line"></span><br><span class="line">elem = document.getElementById(&quot;demo&quot;); // 查找元素 </span><br><span class="line">elem.innerHTML = x;                     </span><br><span class="line">// 在元素中显示 xvar x; // 声明 x</span><br></pre></td></tr></table></figure>
+
+<p>JavaScript 只有声明的变量会提升，<strong>初始化的不会</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var x = 5; // 初始化 x</span><br><span class="line">elem = document.getElementById(&quot;demo&quot;); // 查找元素 </span><br><span class="line">elem.innerHTML = x + &quot; &quot; + y;           // 显示 x 和 y</span><br><span class="line">var y = 7; // 初始化 y</span><br><span class="line">//输出结果x为5，y为undefined</span><br></pre></td></tr></table></figure>
+
+<p>此贴完结，进入ES6部分</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/JavaScript%E5%9F%BA%E7%A1%80/" data-id="clszucuxe0001vgws5dzzccif" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-ES6" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/ES6/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.701Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="ECMAScript-6基础"><a href="#ECMAScript-6基础" class="headerlink" title="ECMAScript 6基础"></a><strong>ECMAScript 6</strong>基础</h1><p>这是一个后端在前后端不分离的道路上越走越远的事故</p>
+<p>就写点基础，深入的东西直接到时候写项目的时候补上</p>
+<h2 id="let关键字"><a href="#let关键字" class="headerlink" title="let关键字"></a>let关键字</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//声明变量</span><br><span class="line">let a;</span><br><span class="line">let b,c,d;</span><br><span class="line">let e = 100;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//块级作用域</span><br><span class="line">&#123;</span><br><span class="line">	let girl = &#x27;周扬青&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">	console.log(girl);</span><br><span class="line">//报错</span><br><span class="line">&#123;</span><br><span class="line">	var girl = &#x27;周扬青&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">	console.log(girl);</span><br><span class="line">//不报错</span><br></pre></td></tr></table></figure>
+
+<p>不允许在变量声明之前使用变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">console.log(song);</span><br><span class="line">let song = &#x27;恋爱达人&#x27;;</span><br><span class="line">// 报错</span><br></pre></td></tr></table></figure>
+
+<h2 id="一个简单的let点击变色实例"><a href="#一个简单的let点击变色实例" class="headerlink" title="一个简单的let点击变色实例"></a>一个简单的let点击变色实例</h2><p><img src="/2024/02/24/ES6/image-20240129142411848.png" alt="image-20240129142411848"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    // 优化移动设备上的视口设置</span><br><span class="line">    &lt;title&gt;点击 DIV 换色&lt;/title&gt;</span><br><span class="line">    &lt;link crossorigin=&quot;anonymous&quot; href=&quot;https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css&quot;</span><br><span class="line">        rel=&quot;stylesheet&quot;&gt;</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">        .item &#123;</span><br><span class="line">            width: 100px;</span><br><span class="line">            height: 50px;</span><br><span class="line">            border: solid 1px rgb(42, 156, 156);</span><br><span class="line">            float: left;</span><br><span class="line">            margin-right: 10px;</span><br><span class="line">        &#125;</span><br><span class="line">        //定义了.item类的CSS样式，包括宽度、高度、边框和浮动属性</span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;div class=&quot;container&quot;&gt;</span><br><span class="line">        &lt;h2 class=&quot;page-header&quot;&gt;点击切换颜色&lt;/h2&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        &lt;div class=&quot;item&quot;&gt;&lt;/div&gt;</span><br><span class="line">        //三个类为 &quot;item&quot; 的空 div，它们将根据样式展示为小方块。</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">        //获取div元素对象</span><br><span class="line">        let items = document.getElementsByClassName(&#x27;item&#x27;);</span><br><span class="line">        //遍历并绑定事件</span><br><span class="line">        for(let i = 0;i&lt;items.length;i++)&#123;</span><br><span class="line">        //使用 for 循环遍历这些元素，给每个元素绑定 onclick 事件。</span><br><span class="line">            items[i].onclick = function()&#123;</span><br><span class="line">                //修改当前元素的背景颜色</span><br><span class="line">                // this.style.background = &#x27;pink&#x27;;</span><br><span class="line">                items[i].style.background = &#x27;pink&#x27;;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;        </span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="const常量"><a href="#const常量" class="headerlink" title="const常量"></a>const常量</h2><p>const必须有初始值，一般使用大写，值不允许修改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">对于数组和对象的元素修改, 不算做对常量的修改, 不会报错</span><br><span class="line">const TEAM = [&#x27;UZI&#x27;,&#x27;MXLG&#x27;,&#x27;Ming&#x27;,&#x27;Letme&#x27;];</span><br><span class="line">TEAM.push(&#x27;Meiko&#x27;);</span><br><span class="line">声明数组的时候一般使用const</span><br></pre></td></tr></table></figure>
+
+<h2 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h2><p>语法上 Promise 是一个构造函数，用来封装异步操作并可以获取其成功或失败的结果。</p>
+<ol>
+<li><p>Promise 构造函数: Promise (excutor) {}</p>
+</li>
+<li><p>Promise.prototype.then 方法</p>
+</li>
+<li><p>Promise.prototype.catch 方法</p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">        //实例化 Promise 对象</span><br><span class="line">        const p = new Promise(function(resolve, reject)&#123;</span><br><span class="line">            setTimeout(function()&#123;</span><br><span class="line">				// 这部分代码模拟了一个异步操作（这里用setTimeout模拟延迟）</span><br><span class="line">        		// 在实际应用中，可能是一个从数据库读取数据的操作或其他异步任务</span><br><span class="line">                let data = &#x27;数据库中的用户数据&#x27;;</span><br><span class="line">                resolve</span><br><span class="line">                resolve(data);</span><br><span class="line">                // 如果数据读取成功，可以调用resolve方法并传入数据</span><br><span class="line"></span><br><span class="line">                let err = &#x27;数据读取失败&#x27;;</span><br><span class="line">                reject(err);</span><br><span class="line">            &#125;, 1000);</span><br><span class="line">        &#125;);</span><br><span class="line">        //new Promise接收一个执行器函数作为参数，这个函数内通常会包含异步操作，并通过调用resolve或reject来决定Promise的状态和传递的结果。</span><br><span class="line">        //调用 promise 对象的 then 方法</span><br><span class="line">        p.then(function(value)&#123;</span><br><span class="line">            console.log(value);</span><br><span class="line">        &#125;, function(reason)&#123;</span><br><span class="line">            console.error(reason);</span><br><span class="line">        &#125;)</span><br><span class="line">        // .then方法接受两个回调函数作为参数，第一个回调在Promise被resolve时调用，第二个回调在Promise被reject时调用。在这段代码里，当Promise状态变为fulfilled（即resolve）时，会在控制台打印出结果值；当Promise状态变为rejected（即reject）时，会在控制台以错误形式打印出拒绝原因。</span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/ES6/" data-id="clszucuxb0000vgws2m8jdlat" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-PyMuPDF使用小结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2023/12/09/PyMuPDF%E4%BD%BF%E7%94%A8%E5%B0%8F%E7%BB%93/" class="article-date">
@@ -165,95 +818,12 @@
 
 
   
-    <article id="post-PatentOCR" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/11/28/PatentOCR/" class="article-date">
-  <time class="dt-published" datetime="2023-11-28T03:06:14.000Z" itemprop="datePublished">2023-11-28</time>
-</a>
+
+
+  <nav id="page-nav">
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2023/11/28/PatentOCR/">应用OCR模型对特定文档识别</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>OCR(光学字符识别)是个很成熟的技术，特别是随着深度学习的发展，目前对文字区域的识别能力以及识别可信度都很高，但是对于具体场景的应用，各类OCR现在做的并不好（没有吐槽WPS的意思）。这里做了一个基于PaddleOCR的对专利进行处理的落地应用。</p>
-<h2 id="PaddleOCR的快速使用"><a href="#PaddleOCR的快速使用" class="headerlink" title="PaddleOCR的快速使用"></a>PaddleOCR的快速使用</h2><p>PaddleOCR的使用在这里已经写的很详细就不多做赘述了：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/quickstart.md</span><br></pre></td></tr></table></figure>
-
-<p><img src="/images/image-20231123135349443.png" alt="image-20231123135349443"></p>
-<p>直接对上面PDF格式文件进行识别的具体效果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[146.0, 535.0], [535.0, 533.0], [536.0, 551.0], [146.0, 553.0]], (&#x27;This invention relates to improvements in drop&#x27;, 0.9897972345352173)]	//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[545.0, 531.0], [951.0, 531.0], [951.0, 553.0], [545.0, 553.0]], (&#x27;valve-actuating mechanism which would .pro-&#x27;, 0.9771772623062134)]		//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[126.0, 551.0], [545.0, 549.0], [546.0, 571.0], [126.0, 573.0]], (&#x27;hammers and the general object of the inven-.&#x27;, 0.9682044386863708)]		//这是左列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[547.0, 553.0], [735.0, 553.0], [735.0, 569.0], [547.0, 569.0]], (&#x27;duce a repeated blow.&#x27;, 0.9721798896789551)]	//这是右列</span><br><span class="line">[2023/11/23 13:25:30] ppocr INFO: [[[128.0, 571.0], [535.0, 569.0], [536.0, 587.0], [128.0, 589.0]], (&#x27;tion is to provide a drop hammer of rigid con-&#x27;, 0.9539873600006104)]	//这是左列</span><br></pre></td></tr></table></figure>
-        
-          <p class="article-more-link">
-            <a href="/2023/11/28/PatentOCR/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/11/28/PatentOCR/" data-id="clpte9agn0002qkws9gd13788" data-title="应用OCR模型对特定文档识别" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/11/25/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2023-11-25T03:06:14.000Z" itemprop="datePublished">2023-11-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2023/11/25/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>欢迎来到我的博客，我会在这里记录平时的工作和自己的成长，也希望我和看到这个博客的各位能成为更好的自己!</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/11/25/hello-world/" data-id="clpte9agi0000qkws1uva761v" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+  </nav>
 
 </section>
         
@@ -271,7 +841,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a></li></ul>
     </div>
   </div>
 
@@ -284,19 +854,23 @@
       <ul>
         
           <li>
-            <a href="/2023/12/09/PyMuPDF%E4%BD%BF%E7%94%A8%E5%B0%8F%E7%BB%93/">(no title)</a>
+            <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">(no title)</a>
           </li>
         
           <li>
-            <a href="/2023/12/06/%E8%AE%B0%E5%BD%95Hexo-GithubPages%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%9B%BE%E7%89%87%E6%8F%92%E5%85%A5/">记录Hexo+GithubPages的个人博客的创建与图片插入</a>
+            <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/">(no title)</a>
           </li>
         
           <li>
-            <a href="/2023/11/28/PatentOCR/">应用OCR模型对特定文档识别</a>
+            <a href="/2024/02/24/REACT/">(no title)</a>
           </li>
         
           <li>
-            <a href="/2023/11/25/hello-world/">Hello World</a>
+            <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/">(no title)</a>
           </li>
         
       </ul>
@@ -312,7 +886,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2023 John Doe<br>
+      &copy; 2024 John Doe<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

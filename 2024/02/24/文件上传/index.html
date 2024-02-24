@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HuangZhen&#39;s Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="文件上传从前端到数据库​	本篇博客我试着结合我现在的项目说一下文件上传这个功能从前端(react)到后端(spring)再到数据库。 前端页面首先要有一个页面用来上传PDF，这个页面应该提供拖拽或点击上传功能，点击PDF以后能自动下载该文件，点击删除则该条消失，并且允许上传多个PDF。  文件上传首先定义这样一个组件FileUploadBatchComponent(props) ，首先定义一个事件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HuangZhen&#39;s Home">
+<meta property="og:url" content="http://example.com/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/index.html">
+<meta property="og:site_name" content="HuangZhen&#39;s Home">
+<meta property="og:description" content="文件上传从前端到数据库​	本篇博客我试着结合我现在的项目说一下文件上传这个功能从前端(react)到后端(spring)再到数据库。 前端页面首先要有一个页面用来上传PDF，这个页面应该提供拖拽或点击上传功能，点击PDF以后能自动下载该文件，点击删除则该条消失，并且允许上传多个PDF。  文件上传首先定义这样一个组件FileUploadBatchComponent(props) ，首先定义一个事件">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/image-20240223133506654.png">
+<meta property="article:published_time" content="2024-02-24T08:48:39.710Z">
+<meta property="article:modified_time" content="2024-02-24T08:33:11.689Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/image-20240223133506654.png">
+  
+    <link rel="alternate" href="/atom.xml" title="HuangZhen's Home" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">HuangZhen&#39;s Home</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-文件上传" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="article-date">
+  <time class="dt-published" datetime="2024-02-24T08:48:39.710Z" itemprop="datePublished">2024-02-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="文件上传从前端到数据库"><a href="#文件上传从前端到数据库" class="headerlink" title="文件上传从前端到数据库"></a>文件上传从前端到数据库</h1><p>​	本篇博客我试着结合我现在的项目说一下文件上传这个功能从前端(react)到后端(spring)再到数据库。</p>
+<h2 id="前端页面"><a href="#前端页面" class="headerlink" title="前端页面"></a>前端页面</h2><p>首先要有一个页面用来上传PDF，这个页面应该提供拖拽或点击上传功能，点击PDF以后能自动下载该文件，点击删除则该条消失，并且允许上传多个PDF。</p>
+<p><img src="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/image-20240223133506654.png" alt="image-20240223133506654"></p>
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>首先定义这样一个组件<code>FileUploadBatchComponent(props) </code>，首先定义一个事件处理器用来阻止浏览器默认行为，方便定制拖放区域的行为和视觉效果。具体的函数定义就不放了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">useEffect(() =&gt; &#123;</span><br><span class="line">        if (drop.current) &#123;</span><br><span class="line">            drop.current.addEventListener(&#x27;dragover&#x27;, handleDragOver);	// 在拖动文件进入一个元素时，如果没有指定dragover事件处理函数并阻止其默认行为，浏览器不会认为该元素是可以接受拖放的目标。</span><br><span class="line">            drop.current.addEventListener(&#x27;drop&#x27;, handleDrop);</span><br><span class="line">            drop.current.addEventListener(&#x27;dragenter&#x27;, handleDragEnter);</span><br><span class="line">            drop.current.addEventListener(&#x27;dragleave&#x27;, handleDragLeave);</span><br><span class="line">        &#125;</span><br><span class="line">        return () =&gt; &#123;</span><br><span class="line">            if (drop.current) &#123;</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragover&#x27;, handleDragOver);</span><br><span class="line">                drop.current.removeEventListener(&#x27;drop&#x27;, handleDrop);</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragenter&#x27;, handleDragEnter);</span><br><span class="line">                drop.current.removeEventListener(&#x27;dragleave&#x27;, handleDragLeave);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;, [instanceId]);</span><br></pre></td></tr></table></figure>
+
+<p>这里只要知道，进入handleDrop方法后，不仅会禁用浏览器的默认行为，还会通过以下代码将文件存入mysql中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (files) &#123;</span><br><span class="line">            const fileDatas = new FormData();</span><br><span class="line">            Array.from(files).forEach(f =&gt; &#123;</span><br><span class="line">                fileDatas.append(&#x27;files&#x27;, f)</span><br><span class="line">            &#125;)</span><br><span class="line">            fileDatas.append(&#x27;instanceId&#x27;, instanceId)</span><br><span class="line">            onInputInfoChange(&#x27;file&#x27;, fileDatas)</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>onInputInfoChange</code>回调函数，将<code>fileDatas</code>作为参数传入将其发送给后端进行持久化存储。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">const handleFileUploadButtonClick = async e =&gt; &#123;</span><br><span class="line">	const fileHandle = await window.showOpenFilePicker(&#123;</span><br><span class="line">            types: [&#123;</span><br><span class="line">                accept: &#123;</span><br><span class="line">                    &#x27;application/pdf&#x27;: [&#x27;.pdf&#x27;]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;],</span><br><span class="line">            multiple: true</span><br><span class="line">        &#125;);</span><br><span class="line">    // 打开文件选择对话框，允许用户选择.pdf类型的文件，并可以选择多个文件。</span><br><span class="line">    const fileDatas = new FormData();</span><br><span class="line">	const fileHandleSync = await Promise.all(fileHandle.map(item =&gt; &#123;</span><br><span class="line">            return item.getFile()</span><br><span class="line">        &#125;))	//	从fileHandle中同步获取所有选定文件的实际文件内容，通过Promise.all方法并发地对每个文件句柄调用getFile方法，然后将返回的所有文件对象存储到数组fileHandleSync中。</span><br><span class="line">    if ((fileOssPathList?.length + fileHandleSync?.length) &gt; 10) &#123;</span><br><span class="line">            openWarnSnackbar(&#x27;最多上传十份文件&#x27;)</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">    fileHandleSync.map(item =&gt; &#123;</span><br><span class="line">            fileDatas.append(&#x27;files&#x27;, item)</span><br><span class="line">        &#125;)	//	遍历fileHandleSync中的每个文件，将其添加到FormData对象fileDatas中，键名为&#x27;files&#x27;。</span><br><span class="line">    if (files) &#123;</span><br><span class="line">            fileDatas.append(&#x27;instanceId&#x27;, instanceId)</span><br><span class="line">            onInputInfoChange(&#x27;file&#x27;, fileDatas)</span><br><span class="line">        &#125;	</span><br><span class="line">     //	将实例ID（instanceId）添加到fileDatas中，键名为&#x27;instanceId&#x27;。调用onInputInfoChange回调函数，将fileDatas作为参数传入，表明文件数据已经更新</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件删除"><a href="#文件删除" class="headerlink" title="文件删除"></a>文件删除</h3><p>删除就简单多了，调用后端的<code>deleteUploadedFileByOssPath</code>即可，调用完后触发重新渲染，就会发现这个文件消失了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const handleDeleteUploadedFile = (item, event) =&gt; &#123;</span><br><span class="line">        event.preventDefault()</span><br><span class="line">        event.stopPropagation();</span><br><span class="line">        deleteUploadedFileByOssPath(&#123;instanceId: instanceId, ossPath: item&#125;).then(r =&gt; &#123;</span><br><span class="line">            fileReload()</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件下载"><a href="#文件下载" class="headerlink" title="文件下载"></a>文件下载</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const handleOwnFileDownloadClick = (event, item) =&gt; &#123;</span><br><span class="line">        console.log(&#x27;handleOwnFileDownloadClick&#x27;)</span><br><span class="line">        event.preventDefault()</span><br><span class="line">        event.stopPropagation();</span><br><span class="line">        getFilePathByOss(&#123;ossPath: item&#125;).then(r =&gt; &#123;</span><br><span class="line">            console.log(r)</span><br><span class="line">            downloadFileByUrl(r.data, item.replace(/spai\/[0-9]+\/[0-9]+\/[0-9]+\/[0-9]+_/g, &#x27;&#x27;))</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="页面绘制"><a href="#页面绘制" class="headerlink" title="页面绘制"></a>页面绘制</h3><p>就不细说了，上传属于一个子组件，除了文件上传以外的内容基本都由父组件实现并传入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">return &lt;&gt;</span><br><span class="line">	&lt;div onClick=&#123;handleFileUploadButtonClick&#125;&gt;</span><br><span class="line">		&#123;fileOssPathList == null || fileOssPathList?.length === 0 ? // 判断是否有文件</span><br><span class="line">			&lt;div&gt;</span><br><span class="line">			......</span><br><span class="line">			&lt;/div&gt;	</span><br><span class="line">			: </span><br><span class="line">			&lt;div&gt;</span><br><span class="line">			......</span><br><span class="line">			&lt;/div&gt;</span><br><span class="line">		&#125;</span><br><span class="line">&lt;/&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>onInputInfoChange</code>中被写入的<code>FormData</code>被通过api传给后端，这个方法是通过<code>handleInputInfoChange</code>传给这个子组件的，而这个<code>handleInputInfoChange</code>在每个不同的模块中有不同的实现，只不过最后都被叫成了<code>onInputInfoChange</code>传入到上传组件中（让我想起了Java一个子类继承多个父类？？？）。</p>
+<p>最后补了一个<code>useEffect</code>，当<code>functionInstanceInputInfo.file</code>发生变动的时候调用后端的<code>uploadTemporaryFileBatch</code>接口，接下来说后端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">useEffect(() =&gt; &#123;</span><br><span class="line">        if (functionInstanceInputInfo.file != null) &#123;</span><br><span class="line">            dispatch(setUploadState(true))</span><br><span class="line">            uploadTemporaryFileBatch(functionInstanceInputInfo.file).then(r =&gt; &#123;</span><br><span class="line">                getNewestInputInfo(null)</span><br><span class="line">                changeButtonCode()</span><br><span class="line">                dispatch(setUploadState(false))</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, [functionInstanceInputInfo.file]);</span><br></pre></td></tr></table></figure>
+
+<h2 id="后端部分"><a href="#后端部分" class="headerlink" title="后端部分"></a>后端部分</h2><h3 id="controller"><a href="#controller" class="headerlink" title="controller"></a>controller</h3><p>然后进入到spring boot部分，首先通过一个controller接收页面，同时写前后端的时候我才深刻感受到了命名一样的重要性，能一样请务必一样，从前端到监听的端口到方法名。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Operation(summary = &quot;暂时保存文件&quot;)</span><br><span class="line">@PostMapping(&quot;uploadTemporaryFileBatch&quot;)</span><br><span class="line">public ResultVO uploadTemporaryFileBatch(@RequestParam(&quot;files&quot;) List&lt;MultipartFile&gt; files, @RequestParam Integer instanceId) &#123;</span><br><span class="line">        commonBiz.uploadFileBatch(files, instanceId);</span><br><span class="line">        return ResultVO.success();</span><br><span class="line">    &#125; // @RequestParam限定传入的类型</span><br></pre></td></tr></table></figure>
+
+<h3 id="Biz"><a href="#Biz" class="headerlink" title="Biz"></a>Biz</h3><p>在Biz中我们要实现一个批量传文件的方法，首先从redis中拿数据，下面的代码中已经写好了地址的格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RBucket&lt;Object&gt; bucket = redisson.getBucket(&quot;functionInstanceDetail::&quot; + instanceId);</span><br></pre></td></tr></table></figure>
+
+<p>打开another或者RedisInsight根据Bucket查找到相应的数据<code>&#123;&quot;instanceId&quot;:496,&quot;ossPath&quot;:[&quot;xxx/xx/x/xx/abababababababab.pdf&quot;],&quot;projectType&quot;:0&#125;</code>，至于为什么是从redis中拿数据，因为我在前端的drop方法中已经把文件存入数据库了，所以存入redis的也是文件的路径。</p>
+<p>经过<code>.get()</code>方法并<code>.parseObject()</code>将这个bucket的内容转为我们需要的<code>functionInstanceInputDto</code></p>
+<p>调用<code>ossUtil</code>工具类的<code>uploadFiles</code>方法，将传入的文件列表<code>files</code>上传至OSS（对象存储服务），并将返回的OSS路径列表存储在<code>fileOssList</code>变量中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; fileOssList = ossUtil.uploadFiles(files);</span><br></pre></td></tr></table></figure>
+
+<p>然后就是熟悉的set过程，略略略</p>
+<p>将处理后的<code>instanceInputDto</code>对象转换为JSON字符串，并将这个字符串写回Redis中对应的键下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String str = JSON.toJSONString(instanceInputDto);</span><br><span class="line">bucket.set(str);</span><br></pre></td></tr></table></figure>
+
+<p>之后是与数据库相关的操作，由于我们用了Mybatis-plus，sql语句很少，具体思路就是通过<code>functionInstanceService</code>从数据库中获取与<code>instanceId</code>相对应的<code>SpFunctionInstance</code>实体对象。调用<code>updateById</code>方法，将更新后的<code>functionInstance</code>对象保存回数据库。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" data-id="clszucuxh0007vgws6ag3g0xa" data-title="" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/02/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7postman/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/REACT/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/python%E9%83%A8%E7%BD%B2%E4%B8%80%E4%B8%AApaddleOCR%E6%9C%8D%E5%8A%A1%E5%99%A8/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/02/24/MyBatis-plus%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8C%97/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
